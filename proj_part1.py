@@ -21,7 +21,8 @@ def load_images():
         letter_image_list = []
         for filename in glob.glob('%s/*' % (curr_letter_dir)):
             im = Image.open(filename)
-            letter_image_list.append(im)
+            imgRGB = list(im.getdata())    # a set of 4 values(R, G, B, A)
+            letter_image_list.append(imgRGB)
         image_list.append(letter_image_list)
 
     f = 1
@@ -30,10 +31,6 @@ def load_images():
 
 
 if __name__ == "__main__":
-    # Change the method with which new threads are created, required for sklearn multithreading
-    # https://scikit-learn.org/stable/faq.html#why-do-i-sometime-get-a-crash-freeze-with-n-jobs-1-under-osx-or-linux
-    import multiprocessing
-    multiprocessing.set_start_method('forkserver')
 
     load_images()
 
