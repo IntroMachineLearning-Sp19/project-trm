@@ -21,7 +21,7 @@ def load_images():
     image_class = []
     for curr_letter_dir in letter_dirs:
         curr_letter = curr_letter_dir[-1] # Get last element of string
-        curr_letter.lower() # Make lowercase
+        curr_letter = curr_letter.lower() # Make lowercase
 
         letter_image_list = []
         letter_image_class = []
