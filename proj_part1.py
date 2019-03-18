@@ -5,7 +5,17 @@ Test fitting of team member data with different classifiers
 import os
 import glob
 import numpy as np
+import matplotlib.pyplot as plt
+
+from scipy import ndimage as ndi
+from skimage import feature
 from PIL import Image
+
+''' Helpful commands:
+        Display Image:
+            plt.imshow(np.reshape(image_arr[i][j],(100,100,3)))
+'''
+ 
 
 def load_images():
     '''
@@ -36,14 +46,12 @@ def load_images():
 
     image_arr = np.asarray(image_list)
     image_class_arr = np.asarray(image_class)
-
     f = 1
-
-
+    
+    return (image_arr, image_class_arr, image_list, image_class)
 
 
 if __name__ == "__main__":
 
-    load_images()
-
+    image_arr, image_class_arr, image_list, image_class = load_images()
     f = 1
