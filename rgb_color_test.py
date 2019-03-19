@@ -22,7 +22,7 @@ if __name__ == "__main__":
     red_255 = np.reshape(image_arr[0][0],(100,100,3))
     for i in range(100):
         for j in range(100):
-            red_0[i][j][0] = 255
+            red_255[i][j][0] = 255
     plt.figure()
     plt.title('Red 255')
     plt.imshow(red_255)
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     green_255 = np.reshape(image_arr[0][0],(100,100,3))
     for i in range(100):
         for j in range(100):
-            green_255[i][j][0] = 255
+            green_255[i][j][1] = 255
     plt.figure()
     plt.title('Green 255')
     plt.imshow(green_255)
