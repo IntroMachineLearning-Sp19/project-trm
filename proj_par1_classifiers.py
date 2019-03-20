@@ -166,7 +166,7 @@ def knn_test(data, ground_truth, kmax):
     
     for i in tqdm(range(kmax)): #exclusive of the 5
         
-        X = data.reshape(len(data)) #feature dataset
+        X = data.reshape(len(data),30000) #feature dataset
         Y = ground_truth.reshape(len(data)) #ground truth
             
         n_neighbors = i+1
