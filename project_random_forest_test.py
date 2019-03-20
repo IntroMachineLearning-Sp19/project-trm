@@ -10,49 +10,20 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from tqdm import tqdm
 
+os.system('proj_part1.py')
+
 start = time.time()
-debug = 0
 test_samples = 50
 num_folds = 10
-num_trees = 5
-if debug == 1:
-    num_features = test_samples
-else:
-    num_features = 10
+num_trees = 6
+num_features = 10
 maxDepth = 20
 maxFeatures = num_features
 avg_indx = 0
 std_indx = 1
 
-#Load datasets
-Pavia = np.load('PaviaHyperIm.npy')#103 bands
-savePavia = np.load('PaviaHyperIm.npy')#103 bands
-GT = np.load('gt_mat.npy')
-
-if debug == 1:
-    Pavia_Test = np.copy(Pavia)
-    Pavia_Test = np.delete(Pavia_Test,range(test_samples,610),0)
-    Pavia_Test = np.delete(Pavia_Test,range(test_samples,340),1)
-    Pavia = Pavia_Test
-
-    GT_Test = np.copy(GT)
-    GT_Test = np.delete(GT_Test,range(test_samples,610),0)
-    GT_Test = np.delete(GT_Test,range(test_samples,340),1)
-    GT = GT_Test
-else:
-    Pavia = image_arr
-    GT = image_class_arr
-
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-
-#Reshape HSI image to be Pixels by Bands
-if debug == 1:
-    paviaSpectra =  image_arr
-    gtList =  image_class_arr
-else:
-    paviaSpectra = image_arr.reshape(720,30000)
-    gtList = image_class_arr.reshape(720)
+paviaSpectra = image_arr.reshape(720,30000)
+gtList = image_class_arr.reshape(720)
 
 class foldClass:
     avg = 0
@@ -228,6 +199,6 @@ plt.show()
 #plt.rc('font', size=150)          # controls default text sizes
 #plt.show()
 ## ############################################################################################################################
-#    
+    
 end = time.time()
 print("Total Runtime: ", end - start)
