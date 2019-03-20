@@ -2,8 +2,8 @@
 
 mkdir Combined
 mkdir Combined/{A..Y}
-rm Combined/J
+rm -r Combined/J
 
 for i in {A..Y} ; do
-  cp */"$i"/* Combined/"$i"/
+  cp */"$i"/*.jpg Combined/"$i"/
 done
