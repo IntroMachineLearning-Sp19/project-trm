@@ -207,6 +207,6 @@ def knn_test(data, ground_truth, kmax):
 
 if __name__ == "__main__":
     image_arr, image_class_arr, image_list, image_class = load_images()
-    randfom_forest_test(image_arr, image_class_arr, 20)
-    knn_test(image_arr, image_class_arr, 2)
+    randfom_forest_test(image_arr, image_class_arr, 100)
+    knn_test(image_arr, image_class_arr, 10)
     f = 1
