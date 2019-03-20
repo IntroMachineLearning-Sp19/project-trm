@@ -1,3 +1,16 @@
+'''
+Test fitting of team member data with different classifiers
+'''
+
+import os
+import glob
+import numpy as np
+import matplotlib.pyplot as plt
+
+from scipy import ndimage as ndi
+from skimage import feature
+from PIL import Image
+
 import numpy as np
 import time
 import math
@@ -14,6 +27,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from tqdm import tqdm
 
+''' Helpful commands:
+        Display Image:
+            plt.imshow(np.reshape(image_arr[i][j],(100,100,3)))
+'''
+
+
 def load_images():
     '''
     Load all images as RGB data in an array
@@ -24,27 +43,17 @@ def load_images():
     letter_dirs = glob.glob('%s/TRM_Pics/Combined/*' % (script_dir))
     letter_dirs.sort()
 
+    image_list = []
+    image_class = []
     for curr_letter_dir in letter_dirs:
         curr_letter = curr_letter_dir[-1] # Get last element of string
         curr_letter = curr_letter.lower() # Make lowercase
 
-#        letter_image_list = []
-#        letter_image_class = []
-#        for filename in glob.glob('%s/*' % (curr_letter_dir)):
-#            im = Image.open(filename)
-#            imgRGB = list(im.getdata()) # a set of 3 values(R, G, B)
-#            image_list.append(imgRGB) # Append RGB data list
-#            image_class.append(curr_letter) # Append classification
-        letter_image_list = []
-        letter_image_class = []
         for filename in glob.glob('%s/*' % (curr_letter_dir)):
             im = Image.open(filename)
             imgRGB = list(im.getdata()) # a set of 3 values(R, G, B)
-            letter_image_list.append(imgRGB) # Append RGB data list
-            letter_image_class.append(curr_letter) # Append classification
-
-        image_list.append(letter_image_list)
-        image_class.append(letter_image_class)
+            image_list.append(imgRGB) # Append RGB data list
+            image_class.append(curr_letter) # Append classification
 
     image_arr = np.asarray(image_list)
     image_class_arr = np.asarray(image_class)
@@ -157,7 +166,7 @@ def knn_test(data, ground_truth, kmax):
     
     for i in tqdm(range(kmax)): #exclusive of the 5
         
-        X = data.reshape(len(data),30000) #feature dataset
+        X = data.reshape(len(data)) #feature dataset
         Y = ground_truth.reshape(len(data)) #ground truth
             
         n_neighbors = i+1
@@ -199,6 +208,6 @@ def knn_test(data, ground_truth, kmax):
 if __name__ == "__main__":
     #image_arr, image_class_arr, image_list, image_class = load_images()
     image_arr2, image_class_arr2, image_list2, image_class2 = load_images()
-#    randfom_forest_test(image_arr2, image_class_arr2, 30)
-#    knn_test(image_arr2, image_class_arr2, 2)
+    randfom_forest_test(image_arr2, image_class_arr2, 20)
+    knn_test(image_arr2, image_class_arr2, 2)
     f = 1
