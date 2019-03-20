@@ -47,7 +47,6 @@ def load_images():
     image_arr = np.asarray(image_list)
     image_class_arr = np.asarray(image_class)
     f = 1
-    
     return (image_arr, image_class_arr, image_list, image_class)
 
 
