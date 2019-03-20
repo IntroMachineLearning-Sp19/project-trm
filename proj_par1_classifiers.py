@@ -206,8 +206,7 @@ def knn_test(data, ground_truth, kmax):
     print("Knn Runtime: {} seconds".format(end - start))
 
 if __name__ == "__main__":
-    #image_arr, image_class_arr, image_list, image_class = load_images()
-    image_arr2, image_class_arr2, image_list2, image_class2 = load_images()
-    randfom_forest_test(image_arr2, image_class_arr2, 20)
-    knn_test(image_arr2, image_class_arr2, 2)
+    image_arr, image_class_arr, image_list, image_class = load_images()
+    randfom_forest_test(image_arr, image_class_arr, 20)
+    knn_test(image_arr, image_class_arr, 2)
     f = 1
