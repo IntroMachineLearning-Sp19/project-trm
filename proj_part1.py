@@ -9,7 +9,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-from PIL import Image, ImageFilter
+from PIL import Image
 
 from scipy import ndimage as ndi
 from skimage import feature
@@ -53,20 +53,82 @@ def load_images():
             image_class.append(curr_letter) # Append classification
 
     # Convert lists to arrays
-    rgb_image_arr = np.asarray(rgb_image_list)
-    hsv_image_arr = np.asarray(hsv_image_list)
-    image_class_arr = np.asarray(image_class)
+    rgb_image_arr = np.asarray(rgb_image_list, dtype=np.uint8)
+    hsv_image_arr = np.asarray(hsv_image_list, dtype=np.uint8)
+    image_class_arr = np.asarray(image_class) # TODO: Convert chars to ASCII vals
 
     return (rgb_image_arr, hsv_image_arr, image_class_arr)
 
-def preprocess_image(image):
+def preprocess_image(rgb_preimg, hsv_preimg):
     '''
     Preprocess an image for feature extraction and classification
     '''
 
     # Detect hand and crop edges to tightly enclose it
-    
+    img_saturation = hsv_preimg[:, :, 1]
+
+    crop_img = hsv_preimg[45:55, 45:55]
+
+    average_hand = np.mean(crop_img, dtype=np.float64)
+
+    h_mask = (hsv_preimg >= average_hand) & (hsv_preimg <= 255)
+
+    # DEBUG
+    # plt.imshow(h_mask)
+    # plt.show()
+
+    center_x = 50
+    center_y = 50
+    window_width = 5
+
+    row_sum1 = 0
+    row_sum2 = 0
+
+    col_sum1 = 0
+    col_sum2 = 0
+
+    crop_img = h_mask[center_x-window_width:center_x+window_width,
+                      center_y-window_width:center_y+window_width]
+
+    while 1:
+        i = 0
+        for i in range( len(crop_img) - 1):
+            if (crop_img[0, i] == False):
+                row_sum1 += 1
+            elif (crop_img[len(crop_img)-1, i] == False):
+                row_sum2 += 1
+            elif (crop_img[i, 0] == False):
+                col_sum1 += 1
+            elif (crop_img[i, len(crop_img)-1] == False):
+                col_sum2 += 1
+            
+            i+=1
+        
+        average = (row_sum1 + row_sum2 + col_sum1 + col_sum2) / (4 * (i-1))
+        average_com = (4 * (i-1))
+            
+        window_width += 5
+        crop_img = h_mask[center_x-window_width:center_y+window_width, center_x-window_width:center_y+window_width]
+        
+    #    print(average)
+        print(average_com/average_hand)
+        if average_com/average_hand > 3.0:
+            break
+        elif window_width == 45:
+            break
+        else: 
+            average     = 0
+            row_sum1    = 0
+            row_sum2    = 0
+            col_sum1    = 0
+            col_sum2    = 0
+
+
+    crop_img = hsv_preimg[center_x-window_width:center_x+window_width,
+                          center_y-window_width:center_y+window_width]
+
     # Scale up to 100x100 if needed
+    resize_img = cv2.resize(crop_img,(100,100))
 
     # TODO: Delete background
 
@@ -238,10 +300,11 @@ def random_forest_classifier(data_arr, class_arr, max_trees=50):
     plt.figure(figsize=(20, 10))
     plt.figure(1)
 
-    # multiple line plot
+    # Multiple line plot
     for fold_num in range(num_folds):
         # print(plot_y[fold_num][avg_indx][:])
-        plt.errorbar(plot_x, plot_y[fold_num][avg_indx][:], yerr=plot_y[fold_num][std_indx][:], label='Test Fold {0}'.format(fold_num))    
+        plt.errorbar(plot_x, plot_y[fold_num][avg_indx][:], yerr=plot_y[fold_num][std_indx][:],
+                     label='Test Fold {0}'.format(fold_num))    
 
     plt.xlabel('Number of Trees', fontsize=15)
     plt.ylabel('Accuracy', fontsize=15)
@@ -262,19 +325,8 @@ if __name__ == "__main__":
     #     import multiprocessing
     #     multiprocessing.set_start_method('forkserver')
 
-    # rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
+    rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
 
-    im = Image.open("/home/michael/Documents/EEL4930-ML/Project/2019_sp_ml_train_data/b/1IMG_3199.jpeg")
-    img_rgb = list(im.getdata()) # a set of 3 values(R, G, B)
-
-    img_hsv = list(im.convert('HSV').getdata())
-
-    img_rbg_2 = cv2.cvtColor(img_hsv, cv2.COLOR_HSV2RGB)
-
-
-    plt.figure()
-    plt.imshow(img_hsv)
-    plt.show()
 
     f = 1
 
