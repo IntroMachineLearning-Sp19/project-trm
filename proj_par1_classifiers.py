@@ -63,7 +63,7 @@ def load_images():
 
 def randfom_forest_test(data, ground_truth, max_trees):
     '''Max Trees must be a multiple of 10'''
-    num_trees = math.floor(max_trees/10);
+    num_trees = math.floor(max_trees/10)+1;
     start = time.time()
     num_folds = 10
     num_features = 10
@@ -207,6 +207,6 @@ def knn_test(data, ground_truth, kmax):
 
 if __name__ == "__main__":
     image_arr, image_class_arr, image_list, image_class = load_images()
-    randfom_forest_test(image_arr, image_class_arr, 100)
-    knn_test(image_arr, image_class_arr, 10)
+    randfom_forest_test(image_arr, image_class_arr, 20)
+    knn_test(image_arr, image_class_arr, 5)
     f = 1
