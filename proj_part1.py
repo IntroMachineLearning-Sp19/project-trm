@@ -57,6 +57,11 @@ def load_images():
     hsv_image_arr = np.asarray(hsv_image_list, dtype=np.uint8)
     image_class_arr = np.asarray(image_class) # TODO: Convert chars to ASCII vals
 
+    # Convert data arrays to [(num_images)x100x100x3]
+    num_images = len(rgb_image_arr)
+    rgb_image_arr = np.reshape(rgb_image_arr, (num_images, 100, 100, 3))
+    hsv_image_arr = np.reshape(hsv_image_arr, (num_images, 100, 100, 3))
+
     return (rgb_image_arr, hsv_image_arr, image_class_arr)
 
 def preprocess_image(rgb_preimg, hsv_preimg):
@@ -110,8 +115,9 @@ def preprocess_image(rgb_preimg, hsv_preimg):
         window_width += 5
         crop_img = h_mask[center_x-window_width:center_y+window_width, center_x-window_width:center_y+window_width]
         
-    #    print(average)
-        print(average_com/average_hand)
+        # DEBUG
+        # print(average)
+        # print(average_com/average_hand)
         if average_com/average_hand > 3.0:
             break
         elif window_width == 45:
@@ -128,7 +134,7 @@ def preprocess_image(rgb_preimg, hsv_preimg):
                           center_y-window_width:center_y+window_width]
 
     # Scale up to 100x100 if needed
-    resize_img = cv2.resize(crop_img,(100,100))
+    resized_img = cv2.resize(crop_img, (100, 100))
 
     # TODO: Delete background
 
