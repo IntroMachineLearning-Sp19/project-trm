@@ -53,44 +53,46 @@ def load_images():
             image_class.append(curr_letter) # Append classification
 
     # Convert lists to arrays
-    rgb_image_arr = np.asarray(rgb_image_list, dtype=np.uint8)
+    rgb_image_arr = (np.asarray(rgb_image_list, dtype=np.uint8))
     hsv_image_arr = np.asarray(hsv_image_list, dtype=np.uint8)
     image_class_arr = np.asarray(image_class) # TODO: Convert chars to ASCII vals
+    
+    rgb_image_arr = rgb_image_arr.reshape(len(rgb_image_arr),100,100,3)
+    hsv_image_arr = hsv_image_arr.reshape(len(rgb_image_arr),100,100,3)
 
     return (rgb_image_arr, hsv_image_arr, image_class_arr)
 
-def preprocess_image(rgb_preimg, hsv_preimg):
+def preprocess_each_image(hsv):
     '''
     Preprocess an image for feature extraction and classification
     '''
 
     # Detect hand and crop edges to tightly enclose it
-    img_saturation = hsv_preimg[:, :, 1]
-
-    crop_img = hsv_preimg[45:55, 45:55]
-
+    im_hue = hsv[:,:,1]
+    
+    crop_img = im_hue[45:55, 45:55]
+    
     average_hand = np.mean(crop_img, dtype=np.float64)
-
-    h_mask = (hsv_preimg >= average_hand) & (hsv_preimg <= 255)
-
-    # DEBUG
-    # plt.imshow(h_mask)
-    # plt.show()
-
-    center_x = 50
-    center_y = 50
-    window_width = 5
-
+    
+    h_mask = (im_hue >= average_hand) & (im_hue <= 255)
+    
+    #imgplot = plt.imshow(h_mask)
+    #plt.show()
+    
+    x = 45
+    y = 55
+    h = 0
+    
     row_sum1 = 0
     row_sum2 = 0
-
+    
     col_sum1 = 0
     col_sum2 = 0
-
-    crop_img = h_mask[center_x-window_width:center_x+window_width,
-                      center_y-window_width:center_y+window_width]
-
-    while 1:
+    
+    crop_img = h_mask[x-h:y+h, x-h:y+h]
+    
+    
+    while(1):
         i = 0
         for i in range( len(crop_img) - 1):
             if (crop_img[0, i] == False):
@@ -107,14 +109,14 @@ def preprocess_image(rgb_preimg, hsv_preimg):
         average = (row_sum1 + row_sum2 + col_sum1 + col_sum2) / (4 * (i-1))
         average_com = (4 * (i-1))
             
-        window_width += 5
-        crop_img = h_mask[center_x-window_width:center_y+window_width, center_x-window_width:center_y+window_width]
+        h += 5
+        crop_img = h_mask[x-h:y+h, x-h:y+h]
         
-    #    print(average)
-        print(average_com/average_hand)
+        #print(average)
+        #print(average_com/average_hand)
         if average_com/average_hand > 3.0:
             break
-        elif window_width == 45:
+        elif h == 45:
             break
         else: 
             average     = 0
@@ -122,13 +124,12 @@ def preprocess_image(rgb_preimg, hsv_preimg):
             row_sum2    = 0
             col_sum1    = 0
             col_sum2    = 0
-
-
-    crop_img = hsv_preimg[center_x-window_width:center_x+window_width,
-                          center_y-window_width:center_y+window_width]
-
-    # Scale up to 100x100 if needed
+    
+    
+    crop_img = im_hue[x-h:y+h, x-h:y+h]
+    
     resize_img = cv2.resize(crop_img,(100,100))
+    return resize_img
 
     # TODO: Delete background
 
@@ -316,7 +317,13 @@ def random_forest_classifier(data_arr, class_arr, max_trees=50):
     print("Random Forest Runtime: {} seconds".format(end_time - start_time))
 
     f = 1
-
+    
+def preprocess_all_images(hsv_image_arr_input):
+    hsv_image_arr_pp = [];
+    for i in range(len(hsv_image_arr_input)):
+        hsv_image_arr_pp.append(preprocess_each_image(hsv_image_arr_input[i]))
+    return np.asarray(hsv_image_arr_pp)
+    
 if __name__ == "__main__":
     # # Run this code only on ubuntu
     # if os.name == "posix":
@@ -326,7 +333,27 @@ if __name__ == "__main__":
     #     multiprocessing.set_start_method('forkserver')
 
     rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
+    
+    print("RGB KNN No Pre-Processing")
+    rgb_image_arr = rgb_image_arr.reshape(len(rgb_image_arr),30000)    
+    knn_classifier(rgb_image_arr, image_class_arr)
+    
+    print("HSV KNN No Pre-Processing")
+    hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),30000)
+    knn_classifier(hsv_image_arr, image_class_arr)
 
+    
+    rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
+    
+    print("RGB KNN Pre-Processing")
+    rgb_image_arr = preprocess_all_images(rgb_image_arr)
+    rgb_image_arr = rgb_image_arr.reshape(len(rgb_image_arr),10000)
+    knn_classifier(rgb_image_arr, image_class_arr)
+    
+    print("HSV KNN Pre-Processing")
+    hsv_image_arr = preprocess_all_images(hsv_image_arr)
+    hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),10000)
+    knn_classifier(hsv_image_arr, image_class_arr)
 
     f = 1
 

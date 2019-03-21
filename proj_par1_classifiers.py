@@ -58,8 +58,8 @@ def load_images():
     image_arr = np.asarray(image_list)
     image_class_arr = np.asarray(image_class)
     
-    image_arr = image_arr.reshape(len(image_arr),30000);
-    image_class_arr = image_class_arr.reshape(len(image_class_arr)) #ground truth
+#    image_arr = image_arr.reshape(len(image_arr),30000);
+#    image_class_arr = image_class_arr.reshape(len(image_class_arr)) #ground truth
     f = 1
     
     return (image_arr, image_class_arr, image_list, image_class)
@@ -210,6 +210,6 @@ def knn_test(data, ground_truth, kmax):
 
 if __name__ == "__main__":
     image_arr, image_class_arr, image_list, image_class = load_images()
-    randfom_forest_test(image_arr, image_class_arr, 20)
-    knn_test(image_arr, image_class_arr, 5)
+#    randfom_forest_test(image_arr, image_class_arr, 20)
+#    knn_test(image_arr, image_class_arr, 5)
     f = 1
