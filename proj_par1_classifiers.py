@@ -57,6 +57,9 @@ def load_images():
 
     image_arr = np.asarray(image_list)
     image_class_arr = np.asarray(image_class)
+    
+    image_arr = image_arr.reshape(len(image_arr),30000);
+    image_class_arr = image_class_arr.reshape(len(image_class_arr)) #ground truth
     f = 1
     
     return (image_arr, image_class_arr, image_list, image_class)
@@ -94,8 +97,8 @@ def randfom_forest_test(data, ground_truth, max_trees):
             for i in range(num_features+1):
                 self.dataFeatures.append(dataClass())
     
-    paviaSpectra = data.reshape(len(data),30000)
-    gtList = ground_truth.reshape(len(data))
+    paviaSpectra = data
+    gtList = ground_truth
             
     treeScores = randForestClass();    #treeScores -> x0 = number of trees, x1 = test fold, x2 = runs
     plot_x = np.zeros(num_trees)
@@ -166,8 +169,8 @@ def knn_test(data, ground_truth, kmax):
     
     for i in tqdm(range(kmax)): #exclusive of the 5
         
-        X = data.reshape(len(data),30000) #feature dataset
-        Y = ground_truth.reshape(len(data)) #ground truth
+        X = data
+        Y = ground_truth
             
         n_neighbors = i+1
         
