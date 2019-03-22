@@ -454,7 +454,7 @@ if __name__ == "__main__":
         for j in range(3):
             print(("Run: {} {}").format(paths[i],j))
             knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
-            random_forest_classifier(hsv_image_arr, image_class_arr, 3, ("Run: {} {}").format(paths[i],j))
+            random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
     
     print("Shuffling data and use 70% for training")
     for i in range(3):
