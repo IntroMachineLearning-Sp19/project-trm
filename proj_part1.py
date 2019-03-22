@@ -208,7 +208,7 @@ def extract_features(image, kernel_size=3):
 
     f = 1
 
-def knn_classifier(data_arr, class_arr, k_max=10):
+def knn_classifier(data_arr, class_arr,  train_size, k_max=10):
     '''
     Fit and test a KNN classifier on input data
     data_arr should be [N x M] where N is data points and M is features
@@ -233,7 +233,7 @@ def knn_classifier(data_arr, class_arr, k_max=10):
         classifiers.append(neighbors.KNeighborsClassifier(n_neighbors, weights='uniform'))
         classifiers.append(neighbors.KNeighborsClassifier(n_neighbors, weights='distance'))
         names = ['K-NN_Uniform', 'K-NN_Weighted']
-        X_train, X_test, y_train, y_test = train_test_split(data_arr, class_arr, test_size=.1)
+        X_train, X_test, y_train, y_test = train_test_split(data_arr, class_arr, test_size=train_size)
 
         # Iterate over classifiers
         for name, clf in zip(names, classifiers): 
@@ -257,7 +257,7 @@ def knn_classifier(data_arr, class_arr, k_max=10):
 
     f = 1
 
-def random_forest_classifier(data_arr, class_arr, max_trees=50):
+def random_forest_classifier(data_arr, class_arr, folds, max_trees=50):
     '''
     Fit and test a random forest classifier on input data
     data_arr should be [N x M] where N is data points and M is features
@@ -266,7 +266,7 @@ def random_forest_classifier(data_arr, class_arr, max_trees=50):
     '''
     num_trees = math.floor(max_trees/10)+1
     start_time = time.time()
-    num_folds = 10
+    num_folds = folds
     num_features = 10
     max_depth = 20
     avg_indx = 0
@@ -410,9 +410,9 @@ def extract_features_all_images(hsv_image_arr_input):
 
 def shuffle_in_unison(a, b):
     assert len(a) == len(b)
-    shuffled_a = numpy.empty(a.shape, dtype=a.dtype)
-    shuffled_b = numpy.empty(b.shape, dtype=b.dtype)
-    permutation = numpy.random.permutation(len(a))
+    shuffled_a = np.empty(a.shape, dtype=a.dtype)
+    shuffled_b = np.empty(b.shape, dtype=b.dtype)
+    permutation = np.random.permutation(len(a))
     for old_index, new_index in enumerate(permutation):
         shuffled_a[new_index] = a[old_index]
         shuffled_b[new_index] = b[old_index]
@@ -450,8 +450,12 @@ if __name__ == "__main__":
     hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),10000)
     hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)
     
-    knn_classifier(hsv_image_arr, image_class_arr)
-    random_forest_classifier(hsv_image_arr, image_class_arr)
+    print("Shuffling data and use 70% for training")
+    for i in range(3):
+        print(("Run: {}").format(i))
+        hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
+        knn_classifier(hsv_data, hsv_gt, 0.7)
+        random_forest_classifier(hsv_data, hsv_gt, 3)
 
     f = 1
 
