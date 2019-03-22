@@ -162,7 +162,6 @@ def knn_classifier(data_arr, class_arr, k_max=10):
 
     start_time = time.time()
 
-    uniform_scores = np.zeros(k_max, dtype=np.float64)
     weighted_scores = np.zeros(k_max, dtype=np.float64)
 
     # Set up the classifiers we will run
@@ -180,7 +179,6 @@ def knn_classifier(data_arr, class_arr, k_max=10):
         names = ['K-NN_Uniform', 'K-NN_Weighted']
         X_train, X_test, y_train, y_test = train_test_split(data_arr, class_arr, test_size=.1)
 
-
         # Iterate over classifiers
         for name, clf in zip(names, classifiers): 
 
@@ -188,16 +186,8 @@ def knn_classifier(data_arr, class_arr, k_max=10):
             clf.fit(X_train, y_train)
 
             #Test the classifier
-            if name == 'K-NN_Uniform':
-                uniform_scores[i] = (clf.score(X_test, y_test))
-            else:
-                weighted_scores[i] = (clf.score(X_test, y_test))
-
-    plt.figure()
-    plt.scatter(x=np.arange(start=1, stop=k_max+1), y=uniform_scores)
-    plt.title("K from 1 to {}: Uniformed K-NN".format(k_max))
-    plt.xlabel("K-Value")
-    plt.ylabel("Accuracy")
+            if name == 'K-NN_Weighted':
+                weighted_scores[i] =  (clf.score(X_test, y_test))
 
     plt.figure()
     plt.scatter(x=np.arange(start=1, stop=k_max+1), y=weighted_scores)
