@@ -247,7 +247,7 @@ def knn_classifier(data_arr, class_arr,  train_size, title, k_max=10):
 
     plt.figure()
     plt.scatter(x=np.arange(start=1, stop=k_max+1), y=weighted_scores)
-    plt.title("Weighted K from 1 to {}: {}".format(k_max,title))
+    plt.title("Weighted Knn from 1 to {}: {}".format(k_max,title))
     plt.xlabel("K-Value")
     plt.ylabel("Accuracy")
     plt.show()
@@ -355,7 +355,7 @@ def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
 
     plt.xlabel('Number of Trees', fontsize=15)
     plt.ylabel('Accuracy', fontsize=15)
-    plt.title('Random Forests Classification: {}'.format(title), fontsize=20)
+    plt.title('Random Forests Classification: {}'.format(title))
     plt.legend()
     plt.show()
     
