@@ -250,7 +250,6 @@ def knn_classifier(data_arr, class_arr,  train_size, title, k_max=10):
     plt.title("Weighted Knn from 1 to {} {}".format(k_max,title))
     plt.xlabel("K-Value")
     plt.ylabel("Accuracy")
-    plt.show()
 
     end_time = time.time()
     print("Knn Runtime: {} seconds".format(end_time - start_time))
@@ -356,7 +355,6 @@ def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
     plt.ylabel('Accuracy', fontsize=15)
     plt.title('Random Forests Classification {}'.format(title))
     plt.legend()
-    plt.show()
     
     end_time = time.time()
     print("Random Forest Runtime: {} seconds".format(end_time - start_time))
@@ -462,6 +460,8 @@ if __name__ == "__main__":
         hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
         knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
         random_forest_classifier(hsv_data, hsv_gt, 3, "Shuffling Data Run {}".format(i))
+        
+    plt.show()
 
     f = 1
 
