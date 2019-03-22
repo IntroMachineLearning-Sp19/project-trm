@@ -24,6 +24,30 @@ import cv2
 
 from tqdm import tqdm
 
+def train_score_image_classifier():
+    rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
+
+def load_image_single(filename):
+    '''
+    Load and return a single image as a 100x100x3 array
+    '''
+    # Open Image
+    im = Image.open(filename)
+
+    img_rgb = list(im.getdata()) # a set of 3 values(R, G, B)
+
+    img_hsv = list(im.convert('HSV').getdata())
+
+    # Convert lists to arrays
+    rgb_image_arr = np.asarray(img_rgb, dtype=np.uint8)
+    hsv_image_arr = np.asarray(img_hsv, dtype=np.uint8)
+
+    # Convert data arrays to [(num_images)x100x100x3]
+    rgb_image_arr = np.reshape(rgb_image_arr, (100, 100, 3))
+    hsv_image_arr = np.reshape(hsv_image_arr, (100, 100, 3))
+
+    return (rgb_image_arr, hsv_image_arr)
+
 
 def load_images():
     '''
@@ -141,7 +165,7 @@ def preprocess_image(rgb_preimg, hsv_preimg):
 
     f = 1
 
-def extract_features(image):
+def extract_features(image, kernel_size=3):
     '''
     Extract new features from the image for use in classification
     New features: edge histogram, ORB keypoints
@@ -149,9 +173,36 @@ def extract_features(image):
 
     extracted_features = []
 
-    # Calcualte the type (horizontal, diagonal, vertical) and location of edges
+    # Gaussian blur image
+    blur_img = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+
+    # Calculate the type (horizontal, diagonal, vertical) and location of edges
+    # perform Sobel edge detection in x and y dimensions
+    edges_x = cv2.Sobel(blur_img, -1, 1, 0)
+    edges_y = cv2.Sobel(blur_img, -1, 0, 1)
+
+    # Partition and average x and y edges in 9 equal sections of the image
+    edge_avg = np.zeros((2, 9))
+    i = 0
+    cutoffs = [(0, 33), (33, 66), (66, 100)]
+    for lower_x_cutoff, upper_x_cutoff in cutoffs:
+        for lower_y_cutoff, upper_y_cutoff in cutoffs:
+            edge_avg[0, i] = np.mean(edges_x[lower_x_cutoff:upper_x_cutoff, lower_y_cutoff:upper_y_cutoff])
+            edge_avg[1, i] = np.mean(edges_y[lower_x_cutoff:upper_x_cutoff, lower_y_cutoff:upper_y_cutoff])
+            i = i + 1
 
 
+    # DEBUG, show progression of 
+    # plt.imshow(image)
+    # plt.show()
+    # plt.imshow(blur_img)
+    # plt.show()
+    # plt.imshow(edges_x)
+    # plt.show()
+    # plt.imshow(edges_y)
+    # plt.show()
+
+    extracted_features.append(edge_avg.flatten())
 
     return np.asarray(extracted_features) # Return array of concatenated extracted features
 
@@ -331,9 +382,10 @@ if __name__ == "__main__":
     #     import multiprocessing
     #     multiprocessing.set_start_method('forkserver')
 
-    rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
-
-
+    # rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
+    rgb_image_arr, hsv_image_arr = load_image_single('/home/michael/Documents/EEL4930-ML/Project/2019_sp_ml_train_data/c/C_21.JPG')
+    extracted_features = extract_features(rgb_image_arr)
+    
     f = 1
 
 ''' Helpful commands:
