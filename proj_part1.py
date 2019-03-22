@@ -264,7 +264,7 @@ def random_forest_classifier(data_arr, class_arr, max_trees=50):
     class_arr should be [N x 1]
     Max Trees must be a multiple of 10
     '''
-    num_trees = math.floor(max_trees/10)
+    num_trees = math.floor(max_trees/10)+1
     start_time = time.time()
     num_folds = 10
     num_features = 10
@@ -358,17 +358,65 @@ def random_forest_classifier(data_arr, class_arr, max_trees=50):
     plt.title('Pavia Dataset Random Trees Classification', fontsize=20)
     plt.legend()
     plt.show()
-
+    
     end_time = time.time()
     print("Random Forest Runtime: {} seconds".format(end_time - start_time))
 
     f = 1
+    
+def random_forest_feat_importance(data_arr, class_arr):
+    ##############################Feature Importance##############################
+    forest = RandomForestClassifier(criterion='entropy', n_jobs=-1)
+    forest.fit(data_arr, class_arr)
+    importances = forest.feature_importances_
+    
+    std = np.std([tree.feature_importances_ for tree in forest.estimators_],
+                 axis=0)
+    indices = np.argsort(importances)[::-1]
+    
+    # Print the feature ranking
+#    print("Feature ranking:")
+    
+    
+    text_file = open("Output.txt", "w")
+    for f in range(data_arr.shape[1]):
+        temp = ("%d. feature %d (%f)\n" % (f + 1, indices[f], importances[indices[f]]))
+        text_file.write(temp)
+    text_file.close()
+    
+#    plt.figure(figsize=(75,75))
+#    plt.bar(range(data_arr.shape[1]), importances[indices],
+#           color="r", yerr=std[indices], align="center")
+#    plt.xticks(range(1, data_arr.shape[1]+1, 10) )
+#    plt.xlabel("Features by Ranking")
+#    plt.xlim([-1, data_arr.shape[1]])
+#    plt.title("Feature importances")
+#    plt.rc('font', size=150)          # controls default text sizes
+#    plt.show()
+    
+
     
 def preprocess_all_images(hsv_image_arr_input):
     hsv_image_arr_pp = [];
     for i in range(len(hsv_image_arr_input)):
         hsv_image_arr_pp.append(preprocess_each_image(hsv_image_arr_input[i]))
     return np.asarray(hsv_image_arr_pp)
+
+def extract_features_all_images(hsv_image_arr_input):
+    hsv_image_arr_ef = [];
+    for i in range(len(hsv_image_arr_input)):
+        hsv_image_arr_ef.append(extract_features(hsv_image_arr_input[i]))
+    return np.asarray(hsv_image_arr_ef).squeeze()
+
+def shuffle_in_unison(a, b):
+    assert len(a) == len(b)
+    shuffled_a = numpy.empty(a.shape, dtype=a.dtype)
+    shuffled_b = numpy.empty(b.shape, dtype=b.dtype)
+    permutation = numpy.random.permutation(len(a))
+    for old_index, new_index in enumerate(permutation):
+        shuffled_a[new_index] = a[old_index]
+        shuffled_b[new_index] = b[old_index]
+    return shuffled_a, shuffled_b
     
 if __name__ == "__main__":
     # # Run this code only on ubuntu
@@ -378,28 +426,32 @@ if __name__ == "__main__":
     #     import multiprocessing
     #     multiprocessing.set_start_method('forkserver')
 
-    rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
-    
-    print("RGB KNN No Pre-Processing")
-    rgb_image_arr = rgb_image_arr.reshape(len(rgb_image_arr),30000)    
-    knn_classifier(rgb_image_arr, image_class_arr)
-    
-    print("HSV KNN No Pre-Processing")
-    hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),30000)
-    knn_classifier(hsv_image_arr, image_class_arr)
+#    rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
+#    
+#    print("RGB KNN No Pre-Processing")
+#    rgb_image_arr = rgb_image_arr.reshape(len(rgb_image_arr),30000)    
+#    knn_classifier(rgb_image_arr, image_class_arr)
+#    
+#    print("HSV KNN No Pre-Processing")
+#    hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),30000)
+#    knn_classifier(hsv_image_arr, image_class_arr)
 
     
     rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
     
-    print("RGB KNN Pre-Processing")
-    rgb_image_arr = preprocess_all_images(rgb_image_arr)
-    rgb_image_arr = rgb_image_arr.reshape(len(rgb_image_arr),10000)
-    knn_classifier(rgb_image_arr, image_class_arr)
+#    print("RGB KNN")
+#    rgb_image_arr = preprocess_all_images(rgb_image_arr)
+#    rgb_image_arr = extract_features_all_images(rgb_image_arr)
+#    rgb_image_arr = rgb_image_arr.reshape(len(rgb_image_arr),10000)
+#    knn_classifier(rgb_image_arr, image_class_arr)
     
-    print("HSV KNN Pre-Processing")
     hsv_image_arr = preprocess_all_images(hsv_image_arr)
+    hsv_image_arr_feats = extract_features_all_images(hsv_image_arr)
     hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),10000)
+    hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)
+    
     knn_classifier(hsv_image_arr, image_class_arr)
+    random_forest_classifier(hsv_image_arr, image_class_arr)
 
     f = 1
 
