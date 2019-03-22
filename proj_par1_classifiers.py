@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from scipy import ndimage as ndi
 from skimage import feature
 from PIL import Image
+import cv2
 
 import numpy as np
 import time
@@ -57,13 +58,43 @@ def load_images():
 
     image_arr = np.asarray(image_list)
     image_class_arr = np.asarray(image_class)
+    
+    image_arr = image_arr.reshape(len(image_arr),30000);
+    image_class_arr = image_class_arr.reshape(len(image_class_arr)) #ground truth
     f = 1
     
     return (image_arr, image_class_arr, image_list, image_class)
 
+def extract_orb_features(image):
+    img = cv2.imread(image,0)
+
+    # Initiate STAR detector
+    orb = cv2.ORB_create(nfeatures=50)
+
+    # find the keypoints with ORB
+    kp = orb.detect(img,None)
+
+    # compute the descriptors with ORB
+    kp, des = orb.compute(img, kp)
+    kp1 = kp[0]
+
+    kp_array = []
+    for (i,keypoint) in enumerate(kp):
+        kp_array.append(keypoint.angle)
+        kp_array.append(keypoint.octave)
+        kp_array.append(keypoint.pt[0])
+        kp_array.append(keypoint.pt[1])
+        kp_array.append(keypoint.response)
+        kp_array.append(keypoint.size)
+        img2 = img.copy()
+    for marker in kp:
+        img2 = cv2.drawMarker(img2, tuple(int(i) for i in marker.pt), color=(0, 255, 0))
+
+    plt.imshow(img2),plt.show()
+
 def randfom_forest_test(data, ground_truth, max_trees):
     '''Max Trees must be a multiple of 10'''
-    num_trees = math.floor(max_trees/10)+1;
+    num_trees = math.floor(max_trees/10)+1
     start = time.time()
     num_folds = 10
     num_features = 10
@@ -83,9 +114,9 @@ def randfom_forest_test(data, ground_truth, max_trees):
                 self.foldScores.append(foldClass)
         
     class randForestClass():
-        treeNum = [];
-        treeDepth = [];
-        dataFeatures = [];
+        treeNum = []
+        treeDepth = []
+        dataFeatures = []
         def __init__(self, numTrees=num_trees):
             for i in range(numTrees):
                 self.treeNum.append(dataClass())
@@ -94,8 +125,8 @@ def randfom_forest_test(data, ground_truth, max_trees):
             for i in range(num_features+1):
                 self.dataFeatures.append(dataClass())
     
-    paviaSpectra = data.reshape(len(data),30000)
-    gtList = ground_truth.reshape(len(data))
+    paviaSpectra = data
+    gtList = ground_truth
             
     treeScores = randForestClass();    #treeScores -> x0 = number of trees, x1 = test fold, x2 = runs
     plot_x = np.zeros(num_trees)
@@ -110,7 +141,7 @@ def randfom_forest_test(data, ground_truth, max_trees):
             
         forest = RandomForestClassifier(criterion='entropy', n_estimators=num_estimators, n_jobs=-1)
         
-        runs = [];
+        runs = []
         #print("Number of Trees: ", num_estimators)
         for j in range(3):
             runs.append(cross_val_score(forest, paviaSpectra, y=gtList, cv=num_folds, n_jobs=-1))
@@ -166,8 +197,8 @@ def knn_test(data, ground_truth, kmax):
     
     for i in tqdm(range(kmax)): #exclusive of the 5
         
-        X = data.reshape(len(data),30000) #feature dataset
-        Y = ground_truth.reshape(len(data)) #ground truth
+        X = data
+        Y = ground_truth
             
         n_neighbors = i+1
         
