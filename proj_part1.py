@@ -245,12 +245,12 @@ def knn_classifier(data_arr, class_arr,  train_size, title, k_max=10):
             if name == 'K-NN_Weighted':
                 weighted_scores[i] =  (clf.score(X_test, y_test))
 
-    knn = plt.figure(1)
+    plt.figure()
     plt.scatter(x=np.arange(start=1, stop=k_max+1), y=weighted_scores)
-    plt.title("Weighted Knn from 1 to {}: {}".format(k_max,title))
+    plt.title("Weighted Knn from 1 to {} {}".format(k_max,title))
     plt.xlabel("K-Value")
     plt.ylabel("Accuracy")
-    knn.show()
+    plt.show()
 
     end_time = time.time()
     print("Knn Runtime: {} seconds".format(end_time - start_time))
@@ -345,7 +345,6 @@ def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
         plot_x[i] = np.copy(num_estimators)
 
     plt.figure(figsize=(20, 10))
-    fore = plt.figure(2)
 
     # Multiple line plot
     for fold_num in range(num_folds):
@@ -355,9 +354,9 @@ def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
 
     plt.xlabel('Number of Trees', fontsize=15)
     plt.ylabel('Accuracy', fontsize=15)
-    plt.title('Random Forests Classification: {}'.format(title))
+    plt.title('Random Forests Classification {}'.format(title))
     plt.legend()
-    fore.show()
+    plt.show()
     
     end_time = time.time()
     print("Random Forest Runtime: {} seconds".format(end_time - start_time))
