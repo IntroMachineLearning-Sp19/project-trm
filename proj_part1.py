@@ -208,7 +208,7 @@ def extract_features(image, kernel_size=3):
 
     f = 1
 
-def knn_classifier(data_arr, class_arr,  train_size, k_max=10):
+def knn_classifier(data_arr, class_arr,  train_size, title, k_max=10):
     '''
     Fit and test a KNN classifier on input data
     data_arr should be [N x M] where N is data points and M is features
@@ -247,7 +247,7 @@ def knn_classifier(data_arr, class_arr,  train_size, k_max=10):
 
     plt.figure()
     plt.scatter(x=np.arange(start=1, stop=k_max+1), y=weighted_scores)
-    plt.title("K from 1 to {}: Weighted K-NN".format(k_max))
+    plt.title("Weighted K from 1 to {}: {}".format(k_max,title))
     plt.xlabel("K-Value")
     plt.ylabel("Accuracy")
     plt.show()
@@ -257,7 +257,7 @@ def knn_classifier(data_arr, class_arr,  train_size, k_max=10):
 
     f = 1
 
-def random_forest_classifier(data_arr, class_arr, folds, max_trees=50):
+def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
     '''
     Fit and test a random forest classifier on input data
     data_arr should be [N x M] where N is data points and M is features
@@ -355,7 +355,7 @@ def random_forest_classifier(data_arr, class_arr, folds, max_trees=50):
 
     plt.xlabel('Number of Trees', fontsize=15)
     plt.ylabel('Accuracy', fontsize=15)
-    plt.title('Pavia Dataset Random Trees Classification', fontsize=20)
+    plt.title('Random Forests Classification: {}'.format(title), fontsize=20)
     plt.legend()
     plt.show()
     
@@ -451,11 +451,11 @@ if __name__ == "__main__":
     hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)
     
     print("Shuffling data and use 70% for training")
-    for i in range(3):
+    for i in range(1):
         print(("Run: {}").format(i))
         hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
-        knn_classifier(hsv_data, hsv_gt, 0.7)
-        random_forest_classifier(hsv_data, hsv_gt, 3)
+        knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
+        random_forest_classifier(hsv_data, hsv_gt, 3, "Shuffling Data Run {}".format(i))
 
     f = 1
 
