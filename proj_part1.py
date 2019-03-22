@@ -49,14 +49,14 @@ def load_image_single(filename):
     return (rgb_image_arr, hsv_image_arr)
 
 
-def load_images():
+def load_images(path):
     '''
     Load all images as RGB data in an array
     Classify all images
     '''
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    letter_dirs = glob.glob('%s/TRM_Pics/Combined/*' % (script_dir))
+    letter_dirs = glob.glob('{}/TRM_Pics/{}/*'.format(script_dir, path))
     letter_dirs.sort()
 
     rgb_image_list = []
@@ -245,12 +245,12 @@ def knn_classifier(data_arr, class_arr,  train_size, title, k_max=10):
             if name == 'K-NN_Weighted':
                 weighted_scores[i] =  (clf.score(X_test, y_test))
 
-    plt.figure()
+    knn = plt.figure(1)
     plt.scatter(x=np.arange(start=1, stop=k_max+1), y=weighted_scores)
     plt.title("Weighted Knn from 1 to {}: {}".format(k_max,title))
     plt.xlabel("K-Value")
     plt.ylabel("Accuracy")
-    plt.show()
+    knn.show()
 
     end_time = time.time()
     print("Knn Runtime: {} seconds".format(end_time - start_time))
@@ -345,7 +345,7 @@ def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
         plot_x[i] = np.copy(num_estimators)
 
     plt.figure(figsize=(20, 10))
-    plt.figure(1)
+    fore = plt.figure(2)
 
     # Multiple line plot
     for fold_num in range(num_folds):
@@ -357,7 +357,7 @@ def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
     plt.ylabel('Accuracy', fontsize=15)
     plt.title('Random Forests Classification: {}'.format(title))
     plt.legend()
-    plt.show()
+    fore.show()
     
     end_time = time.time()
     print("Random Forest Runtime: {} seconds".format(end_time - start_time))
@@ -436,8 +436,8 @@ if __name__ == "__main__":
 #    hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),30000)
 #    knn_classifier(hsv_image_arr, image_class_arr)
 
-    
-    rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
+    paths = ["Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+    rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
     
 #    print("RGB KNN")
 #    rgb_image_arr = preprocess_all_images(rgb_image_arr)
@@ -448,10 +448,17 @@ if __name__ == "__main__":
     hsv_image_arr = preprocess_all_images(hsv_image_arr)
     hsv_image_arr_feats = extract_features_all_images(hsv_image_arr)
     hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),10000)
-    hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)
+    hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)    
+    
+    print("Running Different Combos of Data")
+    for i in range(1,len(paths)):
+        for j in range(3):
+            print(("Run: {} {}").format(paths[i],j))
+            knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
+            random_forest_classifier(hsv_image_arr, image_class_arr, 3, ("Run: {} {}").format(paths[i],j))
     
     print("Shuffling data and use 70% for training")
-    for i in range(1):
+    for i in range(3):
         print(("Run: {}").format(i))
         hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
         knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
