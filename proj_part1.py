@@ -250,6 +250,11 @@ def knn_classifier(data_arr, class_arr,  train_size, title, k_max=10):
     plt.title("Weighted Knn from 1 to {} {}".format(k_max,title))
     plt.xlabel("K-Value")
     plt.ylabel("Accuracy")
+    
+    if os.path.exists('Figures/result.png'):
+        plt.savefig('Figures/result_{}.png'.format(int(time.time())))
+    else:
+        plt.savefig('Figures/result.png')
 
     end_time = time.time()
     print("Knn Runtime: {} seconds".format(end_time - start_time))
@@ -356,6 +361,11 @@ def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
     plt.title('Random Forests Classification {}'.format(title))
     plt.legend()
     
+    if os.path.exists('Figures/result.png'):
+        plt.savefig('Figures/result_{}.png'.format(int(time.time())))
+    else:
+        plt.savefig('Figures/result.png')
+    
     end_time = time.time()
     print("Random Forest Runtime: {} seconds".format(end_time - start_time))
 
@@ -449,13 +459,13 @@ if __name__ == "__main__":
     
     print("Running Different Combos of Data")
     for i in range(1,len(paths)):
-        for j in range(3):
+        for j in range(1):
             print(("Run: {} {}").format(paths[i],j))
             knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
             random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
     
     print("Shuffling data and use 70% for training")
-    for i in range(3):
+    for i in range(1):
         print(("Run: {}").format(i))
         hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
         knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
