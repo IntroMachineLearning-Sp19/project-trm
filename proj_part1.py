@@ -459,13 +459,13 @@ if __name__ == "__main__":
     
     print("Running Different Combos of Data")
     for i in range(1,len(paths)):
-        for j in range(1):
+        for j in range(3):
             print(("Run: {} {}").format(paths[i],j))
             knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
             random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
     
     print("Shuffling data and use 70% for training")
-    for i in range(1):
+    for i in range(3):
         print(("Run: {}").format(i))
         hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
         knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
