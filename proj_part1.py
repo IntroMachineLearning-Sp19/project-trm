@@ -70,7 +70,8 @@ def load_images(path):
         for filename in glob.glob('%s/*' % (curr_letter_dir)):
             im = Image.open(filename)
             
-            im = im.resize((100, 100), Image.NEAREST) 
+            im = im.resize((100, 100), Image.NEAREST)
+            im = im.filter(ImageFilter.BoxBlur(3))
 
             img_rgb = list(im.getdata()) # a set of 3 values(R, G, B)
             rgb_image_list.append(img_rgb) # Append RGB data list
@@ -146,7 +147,7 @@ def preprocess_each_image(hsv):
         
         #print(average)
         #print(average_com/average_hand)
-        if average_com/average_hand > 3.0:
+        if average_com/average_hand >= 1.5:
             break
         elif h == 45:
             break
@@ -446,13 +447,14 @@ if __name__ == "__main__":
 #    hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),30000)
 #    knn_classifier(hsv_image_arr, image_class_arr)
 
-    paths = ["2019_sp_ml_train_data", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-    rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
+    paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+    rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[1])
     
 #    print("RGB KNN")
 #    rgb_image_arr = preprocess_all_images(rgb_image_arr)
-#    rgb_image_arr = extract_features_all_images(rgb_image_arr)
+#    rgb_image_arr_feats = extract_features_all_images(rgb_image_arr)
 #    rgb_image_arr = rgb_image_arr.reshape(len(rgb_image_arr),10000)
+#    rgb_image_arr = np.concatenate((rgb_image_arr, rgb_image_arr_feats),axis=1)  
 #    knn_classifier(rgb_image_arr, image_class_arr)
     
     hsv_image_arr = preprocess_all_images(hsv_image_arr)
