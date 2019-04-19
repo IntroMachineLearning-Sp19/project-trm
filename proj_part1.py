@@ -107,7 +107,12 @@ def preprocess_each_image(hsv):
     
     average_hand = np.mean(crop_img, dtype=np.float64)
     
-    h_mask = (im_hue >= average_hand) & (im_hue <= 255)
+    max_hand = np.max(crop_img)
+    low_hand = np.min(crop_img)
+
+    h_mask = (im_hue >= low_hand) & (im_hue <= max_hand)
+    
+#    h_mask = (im_hue >= average_hand) & (im_hue <= 255)
     
     #imgplot = plt.imshow(h_mask)
     #plt.show()
@@ -448,7 +453,7 @@ if __name__ == "__main__":
 #    knn_classifier(hsv_image_arr, image_class_arr)
 
     paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-    rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[1])
+    rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
     
 #    print("RGB KNN")
 #    rgb_image_arr = preprocess_all_images(rgb_image_arr)
@@ -462,18 +467,18 @@ if __name__ == "__main__":
     hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),10000)
     hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)    
     
-    print("Running Different Combos of Data")
-    for i in range(1,len(paths)):
-        for j in range(3):
-            print(("Run: {} {}").format(paths[i],j))
-            knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
-            random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
+#    print("Running Different Combos of Data")
+#    for i in range(1,len(paths)):
+#        for j in range(3):
+#            print(("Run: {} {}").format(paths[i],j))
+#            knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
+#            random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
     
     print("Shuffling data and use 70% for training")
-    for i in range(3):
+    for i in range(1):
         print(("Run: {}").format(i))
         hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
-        knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
+#        knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
         random_forest_classifier(hsv_data, hsv_gt, 3, "Shuffling Data Run {}".format(i))
         
     plt.show()
