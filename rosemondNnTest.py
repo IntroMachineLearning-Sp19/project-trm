@@ -20,12 +20,12 @@ import string
 from tqdm import tqdm
 
 from sklearn.model_selection import train_test_split
-    
+########################################################################################################    
 if (torch.cuda.is_available()):
     cuda_available = 1
 else:
     cuda_available = 0
-
+########################################################################################################    
 def load_images(path):
     '''
     Load all images as RGB data in an array
@@ -69,11 +69,11 @@ def load_images(path):
     hsv_image_arr = np.reshape(hsv_image_arr, (num_images, 100, 100, 3))
 
     return (rgb_image_arr, hsv_image_arr, image_class_arr)
-
+########################################################################################################    
 alph = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 5:"f", 6:'g', 7:'h', 8:'i', 9:'k', 10:'l', 11:'m', 12:'n',
         13:'o', 14:'p', 15:'q', 16:'r', 17:'s', 18:'t', 19:'u', 20:'v', 21:'w', 22:'x', 23:'y'}
 alph = dict((v,k) for k,v in alph.items())
-
+########################################################################################################    
 def reshape_to_2d(data, dim):
     reshaped = []
     for i in data:
@@ -111,7 +111,7 @@ else:
 epochs = 100
 batch_size = 100
 learning_rate = 0.005
-
+########################################################################################################    
 class PrintLayer(nn.Module):
     def __init__(self):
         super(PrintLayer, self).__init__()
@@ -161,7 +161,7 @@ class Network(nn.Module):
                 #PrintLayer(),
                 nn.Softmax(dim=1)) # unchanged
 
-################### Rosemond ####################
+# Rosemond
 #    def __init__(self):
 #        super(Network, self).__init__()
 #        
@@ -214,6 +214,7 @@ class Network(nn.Module):
         acc = correct / len(predictions)
         return(acc)
         
+########################################################################################################            
 net = Network()
 if (cuda_available):
     net.cuda()
@@ -256,3 +257,4 @@ plt.plot(np.ones(len(acc_log)), linestyle='dashed')
 
 predictions = net(Variable(test_data_formated))
 net.test(torch.max(predictions.data, 1)[1], test_labels)
+########################################################################################################    
