@@ -15,10 +15,10 @@ import os
 def main(): 
     i = 0
       
-    for filename in os.listdir("C:/Users/tdtra/Google Drive/13 SPRING 2019/EEL4930/project-trm/TRM_Pics/2019_sp_ml_train_data/y/"): 
+    for filename in os.listdir("C:/Users/tdtra/Google Drive/13 SPRING 2019/EEL4930/project-trm/TRM_Pics/2019_sp_ml_train_data/l/"): 
         dst = str(i) + ".jpg"
-        src = "C:/Users/tdtra/Google Drive/13 SPRING 2019/EEL4930/project-trm/TRM_Pics/2019_sp_ml_train_data/y/" + filename
-        dst = "C:/Users/tdtra/Google Drive/13 SPRING 2019/EEL4930/project-trm/TRM_Pics/2019_sp_ml_train_data/y/" + dst 
+        src = "C:/Users/tdtra/Google Drive/13 SPRING 2019/EEL4930/project-trm/TRM_Pics/2019_sp_ml_train_data/l/" + filename
+        dst = "C:/Users/tdtra/Google Drive/13 SPRING 2019/EEL4930/project-trm/TRM_Pics/2019_sp_ml_train_data/l/" + dst 
           
         # rename() function will 
         # rename all the files 
