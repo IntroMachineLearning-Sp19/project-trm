@@ -434,20 +434,33 @@ def shuffle_in_unison(a, b):
         shuffled_b[new_index] = b[old_index]
     return shuffled_a, shuffled_b
 
-def AFTest(model):
-    paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-    rgb_image_arr_af, hsv_image_arr_af, image_class_arr_af = load_images(paths[1])
+def train(data, labels):
+    cross_val_folds = 10
+
+    ##### Preprocessing and Feature Extraction #####
+    image_arr = preprocess_all_images(data)
+    image_arr_feats = extract_features_all_images(image_arr)
+    image_arr = image_arr.reshape(len(image_arr),10000)
+    image_arr = np.concatenate((image_arr, image_arr_feats),axis=1)
+    
+    data, gt = shuffle_in_unison(image_arr, labels) # Shuffle data and labels
+    return random_forest_classifier(data, gt, cross_val_folds, "")  # Returns a RF classifier of size 50 Trees
+    
+def test(testData, model):
+    hsv_image_arr_af = testData
     
     hsv_image_arr_af = preprocess_all_images(hsv_image_arr_af)
     hsv_image_arr_feats_af = extract_features_all_images(hsv_image_arr_af)
     hsv_image_arr_af = hsv_image_arr_af.reshape(len(hsv_image_arr_af),10000)
     hsv_image_arr_af = np.concatenate((hsv_image_arr_af, hsv_image_arr_feats_af),axis=1)       
     
-    hsv_image_arr_af, image_class_arr_af = shuffle_in_unison(hsv_image_arr_af, image_class_arr_af)
-    print(paths[1], 'score: ', model.score(hsv_image_arr_af, image_class_arr_af))
-    return (randomForestModel.predict(test_data)).tolist()
+#    hsv_image_arr_af, image_class_arr_af = shuffle_in_unison(hsv_image_arr_af, image_class_arr_af)    Need image labels to get score. Could add as another parameter
+#    print(paths[1], 'score: ', model.score(hsv_image_arr_af, image_class_arr_af))
+    af_prediction_labels = (randomForestModel.predict(hsv_image_arr_af)).tolist()
 
-    
+    with open("estimatedLabels.txt", "w") as file:
+        file.write(str(af_prediction_labels))
+
 if __name__ == "__main__":
     # # Run this code only on ubuntu
     # if os.name == "posix":
@@ -476,31 +489,23 @@ if __name__ == "__main__":
 #    rgb_image_arr = np.concatenate((rgb_image_arr, rgb_image_arr_feats),axis=1)  
 #    knn_classifier(rgb_image_arr, image_class_arr)
     
-    hsv_image_arr = preprocess_all_images(hsv_image_arr)
-    hsv_image_arr_feats = extract_features_all_images(hsv_image_arr)
-    hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),10000)
-    hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)
-    
 ##    print("Running Different Combos of Data")
 ##    for i in range(1,len(paths)):
 ##        for j in range(3):
 ##            print(("Run: {} {}").format(paths[i],j))
 ##            knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
 ##            random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
-#    
-    cross_val_folds = 10
-    print("Shuffling data and use 70% for training")
-    for i in range(1):
-        print(("Run: {}").format(i))
-        hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
+
+    
 #        knn_classifier(hsv_data, hsv_gt, 0.9, "Shuffling Data Run {}".format(i))
-        randomForestModel = random_forest_classifier(hsv_data, hsv_gt, cross_val_folds, "Shuffling Data Run {}".format(i))
+    randomForestModel = train(hsv_image_arr, image_class_arr)
         
     plt.show()
     
-    af_prediction_labels = AFTest(randomForestModel)
-    with open("trmAFLabels.txt", "w") as file:
-        file.write(str(af_prediction_labels))
+    paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+    af_rgb_image_arr, af_hsv_image_arr, af_image_class_arr = load_images(paths[1])
+
+    test(af_hsv_image_arr, randomForestModel)
 
 ''' Helpful commands:
         Display Image:
