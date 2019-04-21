@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from PIL import Image
+from PIL import ImageFilter
 
 from scipy import ndimage as ndi
 from skimage import feature
@@ -68,6 +69,9 @@ def load_images(path):
 
         for filename in glob.glob('%s/*' % (curr_letter_dir)):
             im = Image.open(filename)
+            
+            im = im.resize((100, 100), Image.NEAREST)
+            im = im.filter(ImageFilter.BoxBlur(3))
 
             img_rgb = list(im.getdata()) # a set of 3 values(R, G, B)
             rgb_image_list.append(img_rgb) # Append RGB data list
@@ -103,7 +107,12 @@ def preprocess_each_image(hsv):
     
     average_hand = np.mean(crop_img, dtype=np.float64)
     
-    h_mask = (im_hue >= average_hand) & (im_hue <= 255)
+    max_hand = np.max(crop_img)
+    low_hand = np.min(crop_img)
+
+    h_mask = (im_hue >= low_hand) & (im_hue <= max_hand)
+    
+#    h_mask = (im_hue >= average_hand) & (im_hue <= 255)
     
     #imgplot = plt.imshow(h_mask)
     #plt.show()
@@ -143,7 +152,7 @@ def preprocess_each_image(hsv):
         
         #print(average)
         #print(average_com/average_hand)
-        if average_com/average_hand > 3.0:
+        if average_com/average_hand >= 1.5:
             break
         elif h == 45:
             break
@@ -443,13 +452,14 @@ if __name__ == "__main__":
 #    hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),30000)
 #    knn_classifier(hsv_image_arr, image_class_arr)
 
-    paths = ["Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+    paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
     rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
     
 #    print("RGB KNN")
 #    rgb_image_arr = preprocess_all_images(rgb_image_arr)
-#    rgb_image_arr = extract_features_all_images(rgb_image_arr)
+#    rgb_image_arr_feats = extract_features_all_images(rgb_image_arr)
 #    rgb_image_arr = rgb_image_arr.reshape(len(rgb_image_arr),10000)
+#    rgb_image_arr = np.concatenate((rgb_image_arr, rgb_image_arr_feats),axis=1)  
 #    knn_classifier(rgb_image_arr, image_class_arr)
     
     hsv_image_arr = preprocess_all_images(hsv_image_arr)
@@ -457,18 +467,18 @@ if __name__ == "__main__":
     hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),10000)
     hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)    
     
-    print("Running Different Combos of Data")
-    for i in range(1,len(paths)):
-        for j in range(1):
-            print(("Run: {} {}").format(paths[i],j))
-            knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
-            random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
+#    print("Running Different Combos of Data")
+#    for i in range(1,len(paths)):
+#        for j in range(3):
+#            print(("Run: {} {}").format(paths[i],j))
+#            knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
+#            random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
     
     print("Shuffling data and use 70% for training")
     for i in range(1):
         print(("Run: {}").format(i))
         hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
-        knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
+#        knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
         random_forest_classifier(hsv_data, hsv_gt, 3, "Shuffling Data Run {}".format(i))
         
     plt.show()
