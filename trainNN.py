@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 # Pytorch
+import torchvision
 from torchvision import transforms, datasets, models
 import torch
 import torch.nn as nn
@@ -97,6 +98,67 @@ def load_images(path):
     print("Images loaded in ", end_time - start_time, "s")
 
     return (rgb_image_arr, hsv_image_arr, image_class_arr)
+
+def setup_dataloader(path):
+    # Record time to load images
+    start_time = timer()
+
+    # Data augmentation and normalization for training
+    # Just normalization for testing
+    data_transforms = {
+        'train': transforms.Compose([
+            transforms.Resize(100),
+            # transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor()
+            # transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ]),
+        'test': transforms.Compose([
+            transforms.Resize(100),
+            # transforms.CenterCrop(224),
+            transforms.ToTensor()
+            # transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ]),
+    }
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    letter_dir = '{}/TRM_Pics/{}/*'.format(script_dir, path)
+
+    image_datasets = {x: datasets.ImageFolder(os.path.join(letter_dir, x), data_transforms[x])
+                      for x in ['train', 'test']}
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=mini_batch_size,
+                                                  shuffle=True, num_workers=4)
+                   for x in ['train', 'test']}
+    dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'test']}
+    class_names = image_datasets['train'].classes
+
+    end_time = timer()
+    print("Images loaded in ", end_time - start_time, "s")
+
+    return image_datasets, dataloaders, dataset_sizes, class_names
+
+def imshow_tensor(inp, title=None):
+    ''' imshow for Tensors '''
+
+    inp = inp.numpy().transpose((1, 2, 0))
+    # mean = np.array([0.485, 0.456, 0.406])
+    # std = np.array([0.229, 0.224, 0.225])
+    # inp = std * inp + mean
+    # inp = np.clip(inp, 0, 1)
+    plt.imshow(inp)
+    if title is not None:
+        plt.title(title)
+    plt.pause(0.001)  # pause a bit so that plots are updated
+
+def imshow_tensor_rand(dataloaders, class_names):
+    ''' imshow the next random bit of training data '''
+    # Get a batch of training data
+    inputs, classes = next(iter(dataloaders['train']))
+
+    # Make a grid from batch
+    out = torchvision.utils.make_grid(inputs)
+
+    imshow_tensor(out, title=[class_names[x] for x in classes])
 
 class Net(nn.Module):
     '''
@@ -224,14 +286,14 @@ def test_net(testing_batch):
     return testing_batch_labels
 
 def train_net(net, epochs, mini_batch_size, learning_rate):
-    reload_images = 1;
-    
-#     Load images
+    reload_images = 1
+
+    # Load images
     if (reload_images):
         paths = ["2019_sp_ml_train_data", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
         rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[1])
-    
-        # DEBUG: Save and load images as a numpy array for speed
+
+        # Save and load images as a numpy array for speed
         np.save('RGB_image_temp_file', rgb_image_arr)
         np.save('HSV_image_temp_file', hsv_image_arr)
         np.save('image_class_temp_file', image_class_arr)
@@ -275,17 +337,13 @@ def train_net(net, epochs, mini_batch_size, learning_rate):
     test_tensor = torch.FloatTensor(test_arr).to(device)
     test_labels_tensor = torch.LongTensor(test_labels).to(device)
 
-    # # Normalize data
-    # train_tensor = train_tensor / 255
-    # test_tensor = train_tensor / 255
-
     # DEBUG: Print raw data
     # print('\nTensor Data: ', train_tensor)
     # print('\nTensor Data Shape: ', train_tensor.shape)
     # print('\nTensor Labels: ', train_labels_tensor)
     # print('\nTensor Labels Shape: ', train_labels_tensor.shape)
 
-    # # DEBUG: Test print an image from tensors
+    # DEBUG: Test print an image from tensors
     # trouble_img_tensor = train_tensor[1, :, :, :].cpu()
     # trouble_img_tensor = trouble_img_tensor.numpy() / 255
     # trouble_img_tensor = np.transpose(trouble_img_tensor, (1, 2, 0))
@@ -316,17 +374,23 @@ if __name__ == "__main__":
     else:
         device = torch.device("cpu")
 
-    # Create the NN
-    net = Net()
-    net.to(device)
-    print(net)
+    # # Create the NN
+    # net = Net()
+    # net.to(device)
+    # print(net)
 
     # Define hyperparameters
-    epochs = 25
+    epochs = 250
     mini_batch_size = 64
     learning_rate = 1e-4
-    
-    train_net(net, epochs, mini_batch_size, learning_rate)
-    
-    # Save model weights
-    torch.save(net.state_dict(), 'cnnTrained.pt')
+
+    # train_net(net, epochs, mini_batch_size, learning_rate)
+
+    # # Save model weights
+    # torch.save(net.state_dict(), 'cnnTrained.pt')
+
+    # Testing dataloader
+    letter_image_datasets, letter_dataloaders, letter_dataset_sizes, letter_class_names = setup_dataloader("2019_sp_ml_train_data")
+    imshow_tensor_rand(dataloaders, class_names)
+
+    ff = 1
