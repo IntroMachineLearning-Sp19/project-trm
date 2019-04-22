@@ -324,7 +324,8 @@ def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
             num_estimators = (i)*10
 
         forest = RandomForestClassifier(criterion='entropy',
-                                        n_estimators=num_estimators, n_jobs=-1)
+                                        n_estimators=num_estimators, n_jobs=-1, max_features=50)
+        modelTrained = forest.fit(data_arr, class_arr)
 
         runs = []
         #print("Number of Trees: ", num_estimators)
@@ -377,8 +378,7 @@ def random_forest_classifier(data_arr, class_arr, folds, title, max_trees=50):
     
     end_time = time.time()
     print("Random Forest Runtime: {} seconds".format(end_time - start_time))
-
-    f = 1
+    return modelTrained
     
 def random_forest_feat_importance(data_arr, class_arr):
     ##############################Feature Importance##############################
@@ -433,6 +433,20 @@ def shuffle_in_unison(a, b):
         shuffled_a[new_index] = a[old_index]
         shuffled_b[new_index] = b[old_index]
     return shuffled_a, shuffled_b
+
+def AFTest(model):
+    paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+    rgb_image_arr_af, hsv_image_arr_af, image_class_arr_af = load_images(paths[1])
+    
+    hsv_image_arr_af = preprocess_all_images(hsv_image_arr_af)
+    hsv_image_arr_feats_af = extract_features_all_images(hsv_image_arr_af)
+    hsv_image_arr_af = hsv_image_arr_af.reshape(len(hsv_image_arr_af),10000)
+    hsv_image_arr_af = np.concatenate((hsv_image_arr_af, hsv_image_arr_feats_af),axis=1)       
+    
+    hsv_image_arr_af, image_class_arr_af = shuffle_in_unison(hsv_image_arr_af, image_class_arr_af)
+    print(paths[1], 'score: ', model.score(hsv_image_arr_af, image_class_arr_af))
+    return (randomForestModel.predict(test_data)).tolist()
+
     
 if __name__ == "__main__":
     # # Run this code only on ubuntu
@@ -465,25 +479,28 @@ if __name__ == "__main__":
     hsv_image_arr = preprocess_all_images(hsv_image_arr)
     hsv_image_arr_feats = extract_features_all_images(hsv_image_arr)
     hsv_image_arr = hsv_image_arr.reshape(len(hsv_image_arr),10000)
-    hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)    
+    hsv_image_arr = np.concatenate((hsv_image_arr, hsv_image_arr_feats),axis=1)
     
-#    print("Running Different Combos of Data")
-#    for i in range(1,len(paths)):
-#        for j in range(3):
-#            print(("Run: {} {}").format(paths[i],j))
-#            knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
-#            random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
-    
+##    print("Running Different Combos of Data")
+##    for i in range(1,len(paths)):
+##        for j in range(3):
+##            print(("Run: {} {}").format(paths[i],j))
+##            knn_classifier(hsv_image_arr, image_class_arr, 0.7, ("Run: {} {}").format(paths[i],j))
+##            random_forest_classifier(hsv_image_arr, image_class_arr, 10, ("Run: {} {}").format(paths[i],j))
+#    
+    cross_val_folds = 10
     print("Shuffling data and use 70% for training")
     for i in range(1):
         print(("Run: {}").format(i))
         hsv_data, hsv_gt = shuffle_in_unison(hsv_image_arr, image_class_arr)
-#        knn_classifier(hsv_data, hsv_gt, 0.7, "Shuffling Data Run {}".format(i))
-        random_forest_classifier(hsv_data, hsv_gt, 3, "Shuffling Data Run {}".format(i))
+#        knn_classifier(hsv_data, hsv_gt, 0.9, "Shuffling Data Run {}".format(i))
+        randomForestModel = random_forest_classifier(hsv_data, hsv_gt, cross_val_folds, "Shuffling Data Run {}".format(i))
         
     plt.show()
-
-    f = 1
+    
+    af_prediction_labels = AFTest(randomForestModel)
+    with open("trmAFLabels.txt", "w") as file:
+        file.write(str(af_prediction_labels))
 
 ''' Helpful commands:
         Display Image:
