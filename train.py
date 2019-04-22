@@ -25,6 +25,8 @@ import cv2
 
 from tqdm import tqdm
 
+import pickle
+
 def train_score_image_classifier():
     rgb_image_arr, hsv_image_arr, image_class_arr = load_images()
 
@@ -499,13 +501,9 @@ if __name__ == "__main__":
     
 #        knn_classifier(hsv_data, hsv_gt, 0.9, "Shuffling Data Run {}".format(i))
     randomForestModel = train(hsv_image_arr, image_class_arr)
-        
-    plt.show()
     
-    paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-    af_rgb_image_arr, af_hsv_image_arr, af_image_class_arr = load_images(paths[1])
-
-    test(af_hsv_image_arr, randomForestModel)
+    with open('randomForestModel.pk1', 'wb') as f:
+        pickle.dump(randomForestModel, f)
 
 ''' Helpful commands:
         Display Image:
