@@ -291,7 +291,7 @@ def train_net(net, epochs, mini_batch_size, learning_rate):
     # Load images
     if (reload_images):
         paths = ["2019_sp_ml_train_data", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-        rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[1])
+        rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
 
         # Save and load images as a numpy array for speed
         np.save('RGB_image_temp_file', rgb_image_arr)
@@ -374,23 +374,23 @@ if __name__ == "__main__":
     else:
         device = torch.device("cpu")
 
-    # # Create the NN
-    # net = Net()
-    # net.to(device)
-    # print(net)
+    # Create the NN
+    net = Net()
+    net.to(device)
+    print(net)
 
     # Define hyperparameters
     epochs = 250
     mini_batch_size = 64
     learning_rate = 1e-4
 
-    # train_net(net, epochs, mini_batch_size, learning_rate)
+    train_net(net, epochs, mini_batch_size, learning_rate)
 
-    # # Save model weights
-    # torch.save(net.state_dict(), 'cnnTrained.pt')
+    # Save model weights
+    torch.save(net.state_dict(), 'cnnTrained.pt')
 
     # Testing dataloader
-    letter_image_datasets, letter_dataloaders, letter_dataset_sizes, letter_class_names = setup_dataloader("2019_sp_ml_train_data")
-    imshow_tensor_rand(dataloaders, class_names)
+#    letter_image_datasets, letter_dataloaders, letter_dataset_sizes, letter_class_names = setup_dataloader("2019_sp_ml_train_data")
+#    imshow_tensor_rand(dataloaders, class_names)
 
     ff = 1
