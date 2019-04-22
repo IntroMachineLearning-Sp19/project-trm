@@ -128,7 +128,7 @@ class Net(nn.Module):
         self.netflow2 = nn.Sequential(
                             nn.Linear(64, 128), # [batch_size, 128]
                             nn.ReLU(inplace=True), # unchanged
-                            nn.Dropout(0.2), # unchanged
+                            nn.Dropout(0.4), # unchanged
                             nn.Linear(128, 24), # [batch_size, 24]
                             nn.Softmax(1)) # unchanged
 
@@ -179,6 +179,9 @@ def train_net(training_batch, training_batch_labels, testing_batch, testing_batc
     Train NN
     '''
 
+    # Record time to train net
+    start_time = timer()
+
     # Set optimizer and loss function
     optimizer = optim.Adam(net.parameters(), learning_rate)
     loss_func = nn.CrossEntropyLoss()
@@ -216,6 +219,10 @@ def train_net(training_batch, training_batch_labels, testing_batch, testing_batc
     plt.plot(np.ones(len(acc_log)), linestyle='dashed')
     plt.show()
 
+    end_time = timer()
+    print("CNN trained in ", end_time - start_time, "s")
+
+
     ff = 1
 
 def test_net(testing_batch):
@@ -242,7 +249,7 @@ if __name__ == "__main__":
     print(net)
 
     # Define hyperparameters
-    epochs = 50
+    epochs = 250
     mini_batch_size = 200
     learning_rate = 1e-4
 
@@ -279,10 +286,17 @@ if __name__ == "__main__":
     test_tensor = torch.FloatTensor(test_arr).to(device)
     test_labels_tensor = torch.LongTensor(test_labels).to(device)
 
-    print('\nTensor Data: ', train_tensor)
-    print('\nTensor Data Shape: ', train_tensor.shape)
-    print('\nTensor Labels: ', train_labels_tensor)
-    print('\nTensor Labels Shape: ', train_labels_tensor.shape)
+    # Normalize data to (-1, 1]
+    train_tensor = (train_tensor - 127) / 128
+    train_labels_tensor = (train_tensor - 127) / 128
+    test_tensor = (train_tensor - 127) / 128
+    test_labels_tensor = (train_tensor - 127) / 128
+
+    # Print 
+    # print('\nTensor Data: ', train_tensor)
+    # print('\nTensor Data Shape: ', train_tensor.shape)
+    # print('\nTensor Labels: ', train_labels_tensor)
+    # print('\nTensor Labels Shape: ', train_labels_tensor.shape)
 
     # # Test print an image from tensors
     # trouble_img_tensor = train_tensor[1, :, :, :].cpu()
