@@ -163,7 +163,7 @@ class Net(nn.Module):
         Evaluate the NN
         '''
 
-        #print('\nPrediction Labels: ', predictions)
+        print('\nPrediction Labels: ', predictions)
         #print('\nFunction Labels: ', labels)
 
         correct = 0
@@ -234,6 +234,27 @@ def test_net(testing_batch):
 
     return testing_batch_labels
 
+def test(testData):
+   testData = np.transpose(testData, (0, 3, 1, 2))
+   testData = torch.FloatTensor(testData).to(device)
+    
+   testAlph = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 5:"f", 6:'g', 7:'h', 8:'i',
+            9:'k', 10:'l', 11:'m', 12:'n', 13:'o', 14:'p', 15:'q', 16:'r',
+            17:'s', 18:'t', 19:'u', 20:'v', 21:'w', 22:'x', 23:'y'}
+   net.load_state_dict(torch.load('CNN'))
+   net.eval()
+   outputs = net(testData)
+   _, predicted = torch.max(outputs, 1)
+   predicted = predicted.tolist()
+   estimatedLabels = []
+   for i in range(len(predicted)):
+       estimatedLabels.append(testAlph[predicted[i]])
+   print(estimatedLabels)
+
+   with open("estimatedLabels.txt", "w") as file:
+       file.write(str(estimatedLabels))
+
+
 
 if __name__ == "__main__":
     # Check for CUDA availability to later push net and tensors to it
@@ -248,64 +269,19 @@ if __name__ == "__main__":
     net.to(device)
     print(net)
 
-    # Define hyperparameters
-    epochs = 10
-    mini_batch_size = 200
-    learning_rate = 1e-4
-
-    # Load images
-    paths = ["2019_sp_ml_train_data", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-    rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
-
-    # # Test print to ensure proper loading
-    # trouble_img_arr = rgb_image_arr[1,:,:,:]
-    # plt.imshow(trouble_img_arr)
-    # plt.show()
-
-    rgb_image_arr = np.transpose(rgb_image_arr, (0, 3, 1, 2))
-    hsv_image_arr = np.transpose(hsv_image_arr, (0, 3, 1, 2))
-
-    # Define alphabet lookup table
-    alph = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 5:"f", 6:'g', 7:'h', 8:'i',
-            9:'k', 10:'l', 11:'m', 12:'n', 13:'o', 14:'p', 15:'q', 16:'r',
-            17:'s', 18:'t', 19:'u', 20:'v', 21:'w', 22:'x', 23:'y'}
-    alph = dict((v, k) for k, v in alph.items())
-
-    image_class_nums_arr = []
-    for i in range(len(image_class_arr)):
-        #print(alph[image_class_arr[i]])
-        image_class_nums_arr.append(alph[image_class_arr[i]])
-    image_class_nums_arr = np.asarray(image_class_nums_arr, dtype=np.uint8)
-
-    # rgb_image_train, rgb_image_test, train_labels, test_labels = train_test_split(rgb_image_arr, image_class_nums_arr, test_size=0.33, random_state=42)
-    train_arr, test_arr, train_labels, test_labels = train_test_split(rgb_image_arr, image_class_nums_arr, test_size=0.33)
-
-    # Convert data from numpy arrays to tensors (datatypes changed due to model requirements)
-    train_tensor = torch.FloatTensor(train_arr).to(device)
-    train_labels_tensor = torch.LongTensor(train_labels).to(device)
-    test_tensor = torch.FloatTensor(test_arr).to(device)
-    test_labels_tensor = torch.LongTensor(test_labels).to(device)
-
-    # Normalize data to (-1, 1]
-#    train_tensor = (train_tensor - 127) / 128
-#    train_labels_tensor = (train_tensor - 127) / 128
-#    test_tensor = (train_tensor - 127) / 128
-#    test_labels_tensor = (train_tensor - 127) / 128
-
-    # Print 
-    # print('\nTensor Data: ', train_tensor)
-    # print('\nTensor Data Shape: ', train_tensor.shape)
-    # print('\nTensor Labels: ', train_labels_tensor)
-    # print('\nTensor Labels Shape: ', train_labels_tensor.shape)
-
-    # # Test print an image from tensors
-    # trouble_img_tensor = train_tensor[1, :, :, :].cpu()
-    # trouble_img_tensor = trouble_img_tensor.numpy() / 255
-    # trouble_img_tensor = np.transpose(trouble_img_tensor, (1, 2, 0))
-    # plt.imshow(trouble_img_tensor)
-    # plt.show()
-
-    train_net(train_tensor, train_labels_tensor, test_tensor, test_labels_tensor)
+    #For Load
+    paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+    easyRGB, easyHSV, easyLabels = load_images(paths[1])
+    
+    paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+    hardRGB, hardHSV, hardLabels = load_images(paths[0])
+    
+    with open("easyLabels.txt", "w") as file:
+        file.write(str(easyLabels.tolist()))
         
-    #For Save
-    torch.save(net.state_dict(), 'CNN')
+    with open("hardLabels.txt", "w") as file:
+        file.write(str(hardLabels.tolist()))
+    
+    test(easyRGB)
+    
+ #    net.evaluate(torch.max(net(Variable(outputs,1))))
