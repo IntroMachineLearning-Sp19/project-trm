@@ -187,12 +187,13 @@ def train_net(training_batch, training_batch_labels, testing_batch, testing_batc
     loss_func = nn.CrossEntropyLoss()
 
     loss_log = []
+    train_acc_log = []
     acc_log = []
 
     for e in tqdm(range(epochs)):
-        # idx = torch.randperm(x.nelement())
-        # x = x.view(-1)[idx].view(x.size())
-        # y = y.view(-1)[idx].view(y.size())
+        shuffle_indices = torch.randperm(training_batch.shape[0])
+        training_batch = training_batch[shuffle_indices]
+        training_batch_labels = training_batch_labels[shuffle_indices]
 
         # Train the net with mini-batches
         for i in range(0, training_batch.shape[0], mini_batch_size):
@@ -208,20 +209,22 @@ def train_net(training_batch, training_batch_labels, testing_batch, testing_batc
             if i % 1000 == 0:
                 #pred = net(Variable(test_data_formated))
                 loss_log.append(loss.item())
+                train_acc_log.append(net.evaluate(torch.max(net(Variable(training_batch[:500])).data, 1)[1],
+                                            training_batch_labels[:500]))
                 acc_log.append(net.evaluate(torch.max(net(Variable(testing_batch[:500])).data, 1)[1],
                                             testing_batch_labels[:500]))
 
-        print('Epoch: {} - Loss: {:.6f}, Accuracy: {:.1f}%'.format(e + 1, loss.item(), 100*acc_log[-1]))
+        print('Epoch: {} - Loss: {:.6f}, Training Accuracy: {:.1f}%, Accuracy: {:.1f}%'.format(e + 1, loss.item(), 100*train_acc_log[-1], 100*acc_log[-1]))
 
     plt.figure(figsize=(10, 8))
     plt.plot(loss_log[2:])
     plt.plot(acc_log)
     plt.plot(np.ones(len(acc_log)), linestyle='dashed')
+    plt.grid(True, which='both')
     plt.show()
 
     end_time = timer()
     print("CNN trained in ", end_time - start_time, "s")
-
 
     ff = 1
 
@@ -241,7 +244,6 @@ if __name__ == "__main__":
         device = torch.device("cuda")
     else:
         device = torch.device("cpu")
-    # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # Create the NN
     net = Net()
@@ -250,20 +252,34 @@ if __name__ == "__main__":
 
     # Define hyperparameters
     epochs = 250
-    mini_batch_size = 200
+    mini_batch_size = 64
     learning_rate = 1e-4
 
     # Load images
-    paths = ["2019_sp_ml_train_data", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-    rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
+    # paths = ["2019_sp_ml_train_data", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+    # rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
 
-    # # Test print to ensure proper loading
+    # DEBUG: Save and load images as a numpy array for speed
+    # np.save('RGB_image_temp_file', rgb_image_arr)
+    # np.save('HSV_image_temp_file', hsv_image_arr)
+    # np.save('image_class_temp_file', image_class_arr)
+    rgb_image_arr = np.load('RGB_image_temp_file.npy')
+    hsv_image_arr = np.load('HSV_image_temp_file.npy')
+    image_class_arr = np.load('image_class_temp_file.npy')
+
+    # # DEBUG; Print to ensure proper loading
     # trouble_img_arr = rgb_image_arr[1,:,:,:]
     # plt.imshow(trouble_img_arr)
     # plt.show()
 
     rgb_image_arr = np.transpose(rgb_image_arr, (0, 3, 1, 2))
     hsv_image_arr = np.transpose(hsv_image_arr, (0, 3, 1, 2))
+
+    # Find mean of the entire dataset
+    dataset_mean = np.mean(rgb_image_arr, (0, 1, 2, 3))
+
+    # DEBUG
+    print('\nDataset Mean: ', dataset_mean)
 
     # Define alphabet lookup table
     alph = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 5:"f", 6:'g', 7:'h', 8:'i',
@@ -286,19 +302,17 @@ if __name__ == "__main__":
     test_tensor = torch.FloatTensor(test_arr).to(device)
     test_labels_tensor = torch.LongTensor(test_labels).to(device)
 
-    # Normalize data to (-1, 1]
-    train_tensor = (train_tensor - 127) / 128
-    train_labels_tensor = (train_tensor - 127) / 128
-    test_tensor = (train_tensor - 127) / 128
-    test_labels_tensor = (train_tensor - 127) / 128
+    # # Normalize data
+    # train_tensor = train_tensor / 255
+    # test_tensor = train_tensor / 255
 
-    # Print 
-    # print('\nTensor Data: ', train_tensor)
+    # DEBUG: Print raw data
+    print('\nTensor Data: ', train_tensor)
     # print('\nTensor Data Shape: ', train_tensor.shape)
     # print('\nTensor Labels: ', train_labels_tensor)
     # print('\nTensor Labels Shape: ', train_labels_tensor.shape)
 
-    # # Test print an image from tensors
+    # # DEBUG: Test print an image from tensors
     # trouble_img_tensor = train_tensor[1, :, :, :].cpu()
     # trouble_img_tensor = trouble_img_tensor.numpy() / 255
     # trouble_img_tensor = np.transpose(trouble_img_tensor, (1, 2, 0))
@@ -306,3 +320,6 @@ if __name__ == "__main__":
     # plt.show()
 
     train_net(train_tensor, train_labels_tensor, test_tensor, test_labels_tensor)
+
+    # Save model weights
+    torch.save(net.state_dict(), 'net_state_dict.pt')
