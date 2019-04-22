@@ -234,14 +234,19 @@ def test_net(testing_batch):
 
     return testing_batch_labels
 
-def test(testData):
+def testNet(testData):
+   # Create the NN
+   net = Net()
+   net.to(device)
+   print(net)
+    
    testData = np.transpose(testData, (0, 3, 1, 2))
    testData = torch.FloatTensor(testData).to(device)
     
    testAlph = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 5:"f", 6:'g', 7:'h', 8:'i',
             9:'k', 10:'l', 11:'m', 12:'n', 13:'o', 14:'p', 15:'q', 16:'r',
             17:'s', 18:'t', 19:'u', 20:'v', 21:'w', 22:'x', 23:'y'}
-   net.load_state_dict(torch.load('CNN'))
+   net.load_state_dict(torch.load('cnnTrained.pt'))
    net.eval()
    outputs = net(testData)
    _, predicted = torch.max(outputs, 1)
@@ -264,11 +269,6 @@ if __name__ == "__main__":
         device = torch.device("cpu")
     # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    # Create the NN
-    net = Net()
-    net.to(device)
-    print(net)
-
     #For Load
     paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
     easyRGB, easyHSV, easyLabels = load_images(paths[1])
@@ -282,6 +282,6 @@ if __name__ == "__main__":
     with open("hardLabels.txt", "w") as file:
         file.write(str(hardLabels.tolist()))
     
-    test(easyRGB)
+    testNet(easyRGB)
     
  #    net.evaluate(torch.max(net(Variable(outputs,1))))

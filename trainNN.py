@@ -173,57 +173,46 @@ class Net(nn.Module):
         
         acc = correct / len(predictions)
         return(acc)
-
-def train_net(training_batch, training_batch_labels, testing_batch, testing_batch_labels):
-    '''
-    Train NN
-    '''
-
-    # Record time to train net
-    start_time = timer()
-
-    # Set optimizer and loss function
-    optimizer = optim.Adam(net.parameters(), learning_rate)
-    loss_func = nn.CrossEntropyLoss()
-
-    loss_log = []
-    acc_log = []
-
-    for e in tqdm(range(epochs)):
-        # idx = torch.randperm(x.nelement())
-        # x = x.view(-1)[idx].view(x.size())
-        # y = y.view(-1)[idx].view(y.size())
-
-        # Train the net with mini-batches
-        for i in range(0, training_batch.shape[0], mini_batch_size):
-            x_mini = training_batch[i:i + mini_batch_size] 
-            y_mini = training_batch_labels[i:i + mini_batch_size] 
-
-            optimizer.zero_grad()
-            net_out = net(Variable(x_mini))
-            loss = loss_func(net_out, Variable(y_mini))
-            loss.backward()
-            optimizer.step()
-
-            if i % 1000 == 0:
-                #pred = net(Variable(test_data_formated))
-                loss_log.append(loss.item())
-                acc_log.append(net.evaluate(torch.max(net(Variable(testing_batch[:500])).data, 1)[1],
-                                            testing_batch_labels[:500]))
-
-        print('Epoch: {} - Loss: {:.6f}, Accuracy: {:.1f}%'.format(e + 1, loss.item(), 100*acc_log[-1]))
-
-    plt.figure(figsize=(10, 8))
-    plt.plot(loss_log[2:])
-    plt.plot(acc_log)
-    plt.plot(np.ones(len(acc_log)), linestyle='dashed')
-    plt.show()
-
-    end_time = timer()
-    print("CNN trained in ", end_time - start_time, "s")
-
-
-    ff = 1
+        
+    def train(self, training_batch, training_batch_labels, testing_batch, testing_batch_labels):
+        '''
+        Train NN
+        '''
+    
+        # Set optimizer and loss function
+        optimizer = optim.Adam(net.parameters(), learning_rate)
+        loss_func = nn.CrossEntropyLoss()
+    
+        loss_log = []
+        train_acc_log = []
+        acc_log = []
+    
+        for e in tqdm(range(epochs)):
+            shuffle_indices = torch.randperm(training_batch.shape[0])
+            training_batch = training_batch[shuffle_indices]
+            training_batch_labels = training_batch_labels[shuffle_indices]
+    
+            # Train the net with mini-batches
+            for i in range(0, training_batch.shape[0], mini_batch_size):
+                x_mini = training_batch[i:i + mini_batch_size] 
+                y_mini = training_batch_labels[i:i + mini_batch_size] 
+    
+                optimizer.zero_grad()
+                net_out = net(Variable(x_mini))
+                loss = loss_func(net_out, Variable(y_mini))
+                loss.backward()
+                optimizer.step()
+    
+                if i % 1000 == 0:
+                    #pred = net(Variable(test_data_formated))
+                    loss_log.append(loss.item())
+                    train_acc_log.append(net.evaluate(torch.max(net(Variable(training_batch[:500])).data, 1)[1],
+                                                training_batch_labels[:500]))
+                    acc_log.append(net.evaluate(torch.max(net(Variable(testing_batch[:500])).data, 1)[1],
+                                                testing_batch_labels[:500]))
+    
+            print('Epoch: {} - Loss: {:.6f}, Training Accuracy: {:.1f}%, Accuracy: {:.1f}%'.format(e + 1, loss.item(), 100*train_acc_log[-1], 100*acc_log[-1]))
+        return loss_log, acc_log
 
 def test_net(testing_batch):
     '''
@@ -234,36 +223,36 @@ def test_net(testing_batch):
 
     return testing_batch_labels
 
-
-if __name__ == "__main__":
-    # Check for CUDA availability to later push net and tensors to it
-    if torch.cuda.is_available():
-        device = torch.device("cuda")
+def train_net(net, epochs, mini_batch_size, learning_rate):
+    reload_images = 1;
+    
+#     Load images
+    if (reload_images):
+        paths = ["2019_sp_ml_train_data", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+        rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
+    
+        # DEBUG: Save and load images as a numpy array for speed
+        np.save('RGB_image_temp_file', rgb_image_arr)
+        np.save('HSV_image_temp_file', hsv_image_arr)
+        np.save('image_class_temp_file', image_class_arr)
     else:
-        device = torch.device("cpu")
-    # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        rgb_image_arr = np.load('RGB_image_temp_file.npy')
+        hsv_image_arr = np.load('HSV_image_temp_file.npy')
+        image_class_arr = np.load('image_class_temp_file.npy')
 
-    # Create the NN
-    net = Net()
-    net.to(device)
-    print(net)
-
-    # Define hyperparameters
-    epochs = 10
-    mini_batch_size = 200
-    learning_rate = 1e-4
-
-    # Load images
-    paths = ["2019_sp_ml_train_data", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-    rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
-
-    # # Test print to ensure proper loading
+    # # DEBUG; Print to ensure proper loading
     # trouble_img_arr = rgb_image_arr[1,:,:,:]
     # plt.imshow(trouble_img_arr)
     # plt.show()
 
     rgb_image_arr = np.transpose(rgb_image_arr, (0, 3, 1, 2))
     hsv_image_arr = np.transpose(hsv_image_arr, (0, 3, 1, 2))
+
+    # Find mean of the entire dataset
+    dataset_mean = np.mean(rgb_image_arr, (0, 1, 2, 3))
+
+    # DEBUG
+    print('\nDataset Mean: ', dataset_mean)
 
     # Define alphabet lookup table
     alph = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 5:"f", 6:'g', 7:'h', 8:'i',
@@ -286,26 +275,58 @@ if __name__ == "__main__":
     test_tensor = torch.FloatTensor(test_arr).to(device)
     test_labels_tensor = torch.LongTensor(test_labels).to(device)
 
-    # Normalize data to (-1, 1]
-#    train_tensor = (train_tensor - 127) / 128
-#    train_labels_tensor = (train_tensor - 127) / 128
-#    test_tensor = (train_tensor - 127) / 128
-#    test_labels_tensor = (train_tensor - 127) / 128
+    # # Normalize data
+    # train_tensor = train_tensor / 255
+    # test_tensor = train_tensor / 255
 
-    # Print 
+    # DEBUG: Print raw data
     # print('\nTensor Data: ', train_tensor)
     # print('\nTensor Data Shape: ', train_tensor.shape)
     # print('\nTensor Labels: ', train_labels_tensor)
     # print('\nTensor Labels Shape: ', train_labels_tensor.shape)
 
-    # # Test print an image from tensors
+    # # DEBUG: Test print an image from tensors
     # trouble_img_tensor = train_tensor[1, :, :, :].cpu()
     # trouble_img_tensor = trouble_img_tensor.numpy() / 255
     # trouble_img_tensor = np.transpose(trouble_img_tensor, (1, 2, 0))
     # plt.imshow(trouble_img_tensor)
     # plt.show()
+    
+    # Record time to train net
+    start_time = timer()
+    loss_log, acc_log = net.train(train_tensor, train_labels_tensor, test_tensor, test_labels_tensor)
+    
+    plt.figure(figsize=(10, 8))
+    plt.plot(loss_log[2:])
+    plt.plot(acc_log)
+    plt.plot(np.ones(len(acc_log)), linestyle='dashed')
+    plt.grid(True, which='both')
+    plt.show()
 
-    train_net(train_tensor, train_labels_tensor, test_tensor, test_labels_tensor)
-        
-    #For Save
-    torch.save(net.state_dict(), 'CNN')
+    end_time = timer()
+    print("CNN trained in ", end_time - start_time, "s")
+
+    ff = 1
+
+
+if __name__ == "__main__":
+    # Check for CUDA availability to later push net and tensors to it
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+
+    # Create the NN
+    net = Net()
+    net.to(device)
+    print(net)
+
+    # Define hyperparameters
+    epochs = 25
+    mini_batch_size = 64
+    learning_rate = 1e-4
+    
+    train_net(net, epochs, mini_batch_size, learning_rate)
+    
+    # Save model weights
+    torch.save(net.state_dict(), 'cnnTrained.pt')
