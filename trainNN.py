@@ -174,7 +174,7 @@ class Net(nn.Module):
         acc = correct / len(predictions)
         return(acc)
         
-    def train(self, training_batch, training_batch_labels, testing_batch, testing_batch_labels):
+    def trainNN(self, training_batch, training_batch_labels, testing_batch, testing_batch_labels):
         '''
         Train NN
         '''
@@ -229,7 +229,7 @@ def train_net(net, epochs, mini_batch_size, learning_rate):
 #     Load images
     if (reload_images):
         paths = ["2019_sp_ml_train_data", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-        rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[0])
+        rgb_image_arr, hsv_image_arr, image_class_arr = load_images(paths[1])
     
         # DEBUG: Save and load images as a numpy array for speed
         np.save('RGB_image_temp_file', rgb_image_arr)
@@ -294,7 +294,7 @@ def train_net(net, epochs, mini_batch_size, learning_rate):
     
     # Record time to train net
     start_time = timer()
-    loss_log, acc_log = net.train(train_tensor, train_labels_tensor, test_tensor, test_labels_tensor)
+    loss_log, acc_log = net.trainNN(train_tensor, train_labels_tensor, test_tensor, test_labels_tensor)
     
     plt.figure(figsize=(10, 8))
     plt.plot(loss_log[2:])
