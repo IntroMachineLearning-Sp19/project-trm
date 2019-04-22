@@ -261,9 +261,18 @@ if __name__ == "__main__":
     plt.show()
     
     paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
-    af_rgb_image_arr, af_hsv_image_arr, af_image_class_arr = load_images(paths[1])
+    easyRGB, easyHSV, easyLabels = load_images(paths[1])
+    
+    paths = ["2019_sp_ml_train_data", "A_n_F", "Combined", "Combined_no_Michael", "Combined_no_Nikita", "Combined_no_Rosemond", "Combined_no_Trung"]    
+    hardRGB, hardHSV, hardLabels = load_images(paths[0])
+    
+    with open("easyLabels.txt", "w") as file:
+        file.write(str(easyLabels.tolist()))
+        
+    with open("hardLabels.txt", "w") as file:
+        file.write(str(hardLabels.tolist()))
 
-    test(af_hsv_image_arr)
+    test(easyRGB)
 
 ''' Helpful commands:
         Display Image:
