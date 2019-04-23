@@ -24,10 +24,10 @@ def train_cnn(data):
 def load_cnn():
     path = Path('data/')
     learn = load_learner(path)
-    img = open_image(path/'test'/'V'/'IMG_2501 resized.jpg')
-    pred_class,pred_idx,outputs = learn.predict(img)
+#    img = open_image(path/'test'/'V'/'IMG_2501 resized.jpg')
+#    pred_class,pred_idx,outputs = learn.predict(img)
     # Print the predition
-    print(pred_class)
+#    print(pred_class)
     return learn
 
 def do_prediction(learner, image):
