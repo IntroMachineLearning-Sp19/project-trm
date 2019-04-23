@@ -1,6 +1,23 @@
-TEAM TRM
+# Sign Language Recognition Project
+Team TRM
 
-PROJECT MEMBERS: TRUNG, NIKITA, ROSEMOND & MICHAEL
+Team Contributors: Trung, Rosemond, Michael, & Nikita
 
+## Install Instructions
+Python 3.6+ is required for all versions of this project.
 
-[Data submission link](https://uflorida-my.sharepoint.com/:f:/g/personal/azare_ufl_edu/EkPEkKsG_OpOlgu2Cj0rQ0oBYvt1g5n__69MaATJINJ3LQ?e=KZ0BmB)
+The final version of the project is run using the fastai library.
+Install instructions can be found on their github page: https://github.com/fastai/fastai
+
+Previous versions require the following libraries:
+numpy
+pytorch
+sklearn
+PIL
+tqdm
+pandas
+
+Most of these libraries are installed with anaconda automatically, which is the suggested method of install for all of the packages as it handles dependecies gracefully.
+
+## Usage
+
