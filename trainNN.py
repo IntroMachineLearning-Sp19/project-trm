@@ -29,6 +29,8 @@ from torch import cuda
 from torch.utils.data import DataLoader, sampler
 from torch.autograd import Variable
 
+from pylab import *
+
 # Image manipulations
 from PIL import Image, ImageFilter, ExifTags
 # # Useful for examining network
@@ -354,7 +356,30 @@ def train_net(net, epochs, mini_batch_size, learning_rate):
     start_time = timer()
     loss_log, acc_log = net.trainNN(train_tensor, train_labels_tensor, test_tensor, test_labels_tensor)
     
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(10, 10))
+
+    rc('axes', linewidth=2)
+
+    # Change size and font of tick labels
+    # Again, this doesn't work in interactive mode.
+    ax = gca()
+
+    for tick in ax.xaxis.get_major_ticks():
+        tick.label1.set_fontsize(12)
+        tick.label1.set_fontweight('bold')
+    for tick in ax.yaxis.get_major_ticks():
+        tick.label1.set_fontsize(12)
+        tick.label1.set_fontweight('bold')
+        
+    plt.xlabel('Epoch (#)',  fontsize = 16, fontweight='bold')
+    plt.ylabel('Accuracy (%)',fontsize = 16, fontweight='bold')
+ #    plt.xticks(np.arange(20, 51, step=10))
+ #    plt.xlim(left=19, right=51)
+    plt.tick_params(direction = "in", length=8, width=2,right=True, top=True)
+    plt.title('CNN', fontsize = 18, fontweight='bold')
+    plt.legend()
+
+
     plt.plot(loss_log[2:])
     plt.plot(acc_log)
     plt.plot(np.ones(len(acc_log)), linestyle='dashed')
@@ -380,7 +405,7 @@ if __name__ == "__main__":
     print(net)
 
     # Define hyperparameters
-    epochs = 250
+    epochs = 10
     mini_batch_size = 64
     learning_rate = 1e-4
 

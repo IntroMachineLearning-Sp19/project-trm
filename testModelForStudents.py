@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Apr 19 14:03:40 2019
-
-@author: cmccurley
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Fri Apr 19 08:36:10 2019
 
 @author: cmccurley
 """
+
+#Paths to data (for reference)
+# "/home/cmccurley/Desktop/MachineLearningFall2019/testData/Easy_Test_Images.npy"
+# "/home/cmccurley/Desktop/MachineLearningFall2019/testData/Hard_Test_Images.npy"
 
 """
 * Author:    Connor McCurley
@@ -89,20 +86,22 @@ def testAccuracy(dataSet, trueLabels, estLabels):
         print("Input correct dataset type")
     
     actualCounts = np.zeros((len(letters),1))         #initialize the vector of actual counts for each letter
-    estCounts = np.zeros((len(letters),1))            #initialize the vector of estimated counts for each letter
-    nSamples = len(trueLabels)
+    correctCounts = np.zeros((len(letters),1))            #initialize the vector of estimated counts for each letter
     
     #Count the number of occurences for each letter in the label lists
     for ind in range(len(letters)):
-        actualCounts[ind,0] = trueLabels.count(letters[ind])
-        estCounts[ind,0] = estLabels.count(letters[ind])
         
-    print("Actual Counts: ", actualCounts)
-    print("Estimated Counts: ", estCounts)
+        actualCounts[ind,0] = trueLabels.count(letters[ind]) #acutal number of letters in true labels
+        
+        #Get sample-wise comparison of labels
+        estLetter = [i for i, x in enumerate(estLabels) if x == letters[ind]]
+        actualLetter = [i for i, x in enumerate(trueLabels) if x == letters[ind]]
+        
+        #Get number of correctly predicted for a particular letter
+        correctCounts[ind,0] = len(set(actualLetter).intersection(estLetter))
         
     #Compute accuracy for each letter in the dataset individually
-    letterAccuracies = np.divide(estCounts, nSamples)
-    print(nSamples)
+    letterAccuracies = np.divide(correctCounts, actualCounts)
     
     #Find the average accuracy
     avgAccuracy = np.mean(letterAccuracies)
@@ -138,23 +137,16 @@ if __name__ == '__main__':
     #============================ User Defined Settings ========================
     #===========================================================================
     dataSet = "easy" #dataset ("easy" or "hard")
-    pathToEstLabels = """D:/Documents/GitHub/project-trm/estimatedLabels.txt"""
+    pathToEstLabels = """estimatedLabels.txt"""
     showLabels = 1 #flag to plot contents of label vectors and sizes
 
-    easyLabelPath = """D:/Documents/GitHub/project-trm/easyLabels.txt"""
-    hardLabelPath = """D:/Documents/GitHub/project-trm/hardLabels.txt"""
-
+    easyLabelPath = """easyLabels.txt"""
+    hardLabelPath = """hardLabels.txt"""
 
     #===========================================================================
     #=============================== Get Test Accuracy =========================
     #===========================================================================
     trueLabels = load_true_labels(dataSet, easyLabelPath, hardLabelPath) 
     estLabels = load_estimated_labels(pathToEstLabels)
-    
-    score = 0
-    for i in range(len(trueLabels)):
-        if (trueLabels[i] == estLabels[i]):
-            score = score + 1
-    print("Score: ", score/len(trueLabels))
-    
+
     testAccuracy(dataSet, trueLabels, estLabels)
