@@ -120,6 +120,12 @@ def do_prediction(learner, data):
     for i in range(len(data.test_ds.x)):
         p = learner.predict(data.test_ds.x[i])
         preds.append(str(p[0]).lower())
+        
+        
+    with open("predictionPaths.txt", "w") as file:
+        for i in range(len(data.test_ds.items)):
+            file.write(str(data.test_ds.items[i]) + '\n')    
+            #print(str(data.test_ds.items[i]) + '\n')
     return preds
     
 def shuffle_in_unison(a, b):
