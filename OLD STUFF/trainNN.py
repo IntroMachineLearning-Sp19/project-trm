@@ -372,18 +372,17 @@ def train_net(net, epochs, mini_batch_size, learning_rate):
         tick.label1.set_fontweight('bold')
         
     plt.xlabel('Epoch (#)',  fontsize = 16, fontweight='bold')
-    plt.ylabel('Accuracy (%)',fontsize = 16, fontweight='bold')
+    plt.ylabel('Accuracy (%) / Loss (#)',fontsize = 16, fontweight='bold')
  #    plt.xticks(np.arange(20, 51, step=10))
  #    plt.xlim(left=19, right=51)
     plt.tick_params(direction = "in", length=8, width=2,right=True, top=True)
     plt.title('CNN', fontsize = 18, fontweight='bold')
-    plt.legend()
 
-
-    plt.plot(loss_log[2:])
-    plt.plot(acc_log)
+    plt.plot(loss_log[2:], label='Loss')
+    plt.plot(acc_log, label='Accuracy')
     plt.plot(np.ones(len(acc_log)), linestyle='dashed')
-    plt.grid(True, which='both')
+#    plt.grid(True, which='both')
+    plt.legend()
     plt.show()
 
     end_time = timer()
@@ -405,7 +404,7 @@ if __name__ == "__main__":
     print(net)
 
     # Define hyperparameters
-    epochs = 10
+    epochs = 1000
     mini_batch_size = 64
     learning_rate = 1e-4
 
