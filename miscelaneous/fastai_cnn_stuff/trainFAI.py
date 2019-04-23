@@ -47,11 +47,10 @@ if __name__ == "__main__":
         
     data = load_images();
     net = train_cnn(data);
+    learner = load_cnn()
     learner.export()
 
-    
-#    learner = load_cnn()
-        
+            
     # interp = ClassificationInterpretation.from_learner(learn)
     # interp.plot_confusion_matrix()
     # interp.plot_top_losses(9, figsize=(10,10))
