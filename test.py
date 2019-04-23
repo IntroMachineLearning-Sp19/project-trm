@@ -146,7 +146,15 @@ def genPredictions(easy=1):
    data = load_images(easy);
    estimatedLabels = do_prediction(learner, data)
    
-   with open("estimatedLabels.txt", "w") as file:
+   with open("estimatedEasyLabels.txt", "w") as file:
+       file.write(str(estimatedLabels))
+       
+
+def genPredictionsHard(easy=0):
+   data = load_images(easy);
+   estimatedLabels = do_prediction(learner, data)
+   
+   with open("estimatedHardLabels.txt", "w") as file:
        file.write(str(estimatedLabels))
     
 if __name__ == "__main__":
@@ -163,7 +171,7 @@ if __name__ == "__main__":
     genPredictions(easy)    # generate easy prediction files
     
     easy = 0
-    genPredictions(easy)    # generate hard prediction files
+    genPredictionsHard(easy)    # generate hard prediction files
     
        
     
