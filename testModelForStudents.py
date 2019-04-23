@@ -137,7 +137,25 @@ if __name__ == '__main__':
     #============================ User Defined Settings ========================
     #===========================================================================
     dataSet = "easy" #dataset ("easy" or "hard")
-    pathToEstLabels = """estimatedLabels.txt"""
+    pathToEstLabels = """estimatedEasyLabels.txt"""
+    showLabels = 1 #flag to plot contents of label vectors and sizes
+
+    easyLabelPath = """easyLabels.txt"""
+    hardLabelPath = """hardLabels.txt"""
+
+    #===========================================================================
+    #=============================== Get Test Accuracy =========================
+    #===========================================================================
+    trueLabels = load_true_labels(dataSet, easyLabelPath, hardLabelPath) 
+    estLabels = load_estimated_labels(pathToEstLabels)
+
+    testAccuracy(dataSet, trueLabels, estLabels)
+    
+    #===========================================================================
+    #============================ User Defined Settings ========================
+    #===========================================================================
+    dataSet = "hard" #dataset ("easy" or "hard")
+    pathToEstLabels = """estimatedHardLabels.txt"""
     showLabels = 1 #flag to plot contents of label vectors and sizes
 
     easyLabelPath = """easyLabels.txt"""
