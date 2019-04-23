@@ -50,13 +50,15 @@ import os
 path = Path('data')
 
 if __name__ == "__main__":
+    preds = []
     learner = load_cnn()
     for subdir, dirs, files in os.walk(path / 'test'):
         for file in files:
             path = os.path.join(subdir, file)
             img = open_image(path)
-            do_prediction(learner, img)
-            print(os.path.join(subdir, file))
+            p = do_prediction(learner, img)
+            preds.append(str(p[0]))
+            print(preds)
 
     # interp = ClassificationInterpretation.from_learner(learn)
     # interp.plot_confusion_matrix()
