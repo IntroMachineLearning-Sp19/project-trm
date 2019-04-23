@@ -146,12 +146,8 @@ def genPredictions(easy=1):
    data = load_images(easy);
    estimatedLabels = do_prediction(learner, data)
    
-   if (easy):
-       with open("estimatedEasyLabels.txt", "w") as file:
-           file.write(str(estimatedLabels))
-   else:
-       with open("estimatedHardLabels.txt", "w") as file:
-           file.write(str(estimatedLabels))
+   with open("estimatedLabels.txt", "w") as file:
+       file.write(str(estimatedLabels))
     
 if __name__ == "__main__":
     if torch.cuda.is_available():
