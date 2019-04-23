@@ -115,17 +115,22 @@ def load_cnn():
 #    print(pred_class)
     return learn
 
-def do_prediction(learner, data):
+def do_prediction(learner, data, easy=1):
     preds = []
     for i in range(len(data.test_ds.x)):
         p = learner.predict(data.test_ds.x[i])
         preds.append(str(p[0]).lower())
         
-        
-    with open("predictionPaths.txt", "w") as file:
-        for i in range(len(data.test_ds.items)):
-            file.write(str(data.test_ds.items[i]) + '\n')    
-            #print(str(data.test_ds.items[i]) + '\n')
+    if (easy):   
+        with open("easyPredictionPaths.txt", "w") as file:
+            for i in range(len(data.test_ds.items)):
+                file.write(str(data.test_ds.items[i]) + '\n')    
+                #print(str(data.test_ds.items[i]) + '\n')
+    else:
+        with open("hardPredictionPaths.txt", "w") as file:
+            for i in range(len(data.test_ds.items)):
+                file.write(str(data.test_ds.items[i]) + '\n')    
+                #print(str(data.test_ds.items[i]) + '\n')
     return preds
     
 def shuffle_in_unison(a, b):
@@ -150,7 +155,7 @@ def genLabels():
         
 def genPredictions(easy=1):
    data = load_images(easy);
-   estimatedLabels = do_prediction(learner, data)
+   estimatedLabels = do_prediction(learner, data, easy)
    
    with open("estimatedEasyLabels.txt", "w") as file:
        file.write(str(estimatedLabels))
@@ -158,7 +163,7 @@ def genPredictions(easy=1):
 
 def genPredictionsHard(easy=0):
    data = load_images(easy);
-   estimatedLabels = do_prediction(learner, data)
+   estimatedLabels = do_prediction(learner, data, easy)
    
    with open("estimatedHardLabels.txt", "w") as file:
        file.write(str(estimatedLabels))
@@ -178,7 +183,6 @@ if __name__ == "__main__":
     
     easy = 0
     genPredictionsHard(easy)    # generate hard prediction files
-    
        
     
             
