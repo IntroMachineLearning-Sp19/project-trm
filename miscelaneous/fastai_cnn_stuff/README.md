@@ -21,15 +21,21 @@ Before running train.py:
       clas2\
       ...
     models\
-    testAF\ (optional)
+    testAF\
       clas1\
       clas2\
       ...
+
+    Place the easy test data in the testAF  directory in the hard test data in the test directory
+
+    Warning:
+      Please close your file explorer after placing the files in the necessary directories to avoid error.
 
 Running train.py:
   If the above path is adhered to, no additional steps are needed to run train.py.
 
 Running test.py:
-  In the main file, set the easy parameter to 1 if you wish to use the testAF folder in which case you would put the easy test files in that folder for convenience. Otherwise you can set the easy parameter to 0 and only utilize the test folder for all your test files.
+  If the above path is adhered to, no additional steps are needed to run test.py.
 
-All resulting files, including model and text files, will be generated in the working directory of the project.
+Results:
+  The predictions will be in an estimatedEasyLabels.txt file and estimatedHardLabels.txt file accordingly.

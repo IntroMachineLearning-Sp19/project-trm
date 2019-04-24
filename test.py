@@ -32,6 +32,56 @@ from PIL import Image, ImageFilter, ExifTags
 from fastai.vision import *
 
 #################################################################################################
+def renameImages(easy=1):
+    
+    if not os.path.exists(os.path.join('data/', 'testEasyOrdered')):
+        os.makedirs(os.path.join('data/', 'testEasyOrdered'))
+        
+    if not os.path.exists(os.path.join('data/', 'testHardOrdered')):
+        os.makedirs(os.path.join('data/', 'testHardOrdered'))
+
+
+    if (easy):
+        i = 0
+        for filename in os.listdir("data/testAF/"):
+            string = ""
+            if len(filename.strip(" .jpg ")) == 1:
+                string = "00"
+            elif len(filename.strip(" .jpg ")) == 2:
+                string = "0"        
+            elif len(filename.strip(" .jpg ")) == 3:
+                string = ""
+                
+            filename = filename.strip(" .jpg ")
+            dst = string + filename + ".jpg"
+            src = "data/testAF/" + filename + ".jpg"
+            dst = "data/testEasyOrdered/" + dst 
+            
+            # rename() function will 
+            # rename all the files 
+            os.rename(src, dst) 
+            i += 1
+    else:
+        i = 0
+        for filename in os.listdir("data/test/"):
+            string = ""
+            if len(filename.strip(" .jpg ")) == 1:
+                string = "00"
+            elif len(filename.strip(" .jpg ")) == 2:
+                string = "0"        
+            elif len(filename.strip(" .jpg ")) == 3:
+                string = ""
+                
+            filename = filename.strip(" .jpg ")
+            dst = string + filename + ".jpg"
+            src = "data/test/" + filename + ".jpg"
+            dst = "data/testHardOrdered/" + dst 
+              
+            # rename() function will 
+            # rename all the files 
+            os.rename(src, dst) 
+            i += 1
+    
 def load_labels(path):
     '''
     Load all images as RGB and HSV data in tensors
@@ -86,11 +136,11 @@ def load_labels(path):
 def load_images(easy=1):
     path = Path('data/')
     classes = ['a','b','c', 'd', 'e', 'f', 'g', 'h', 'i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y']
-    np.random.seed(42)
+    
     if (easy):
-        data = ImageDataBunch.from_folder(path, train='train', valid='valid', test='testAF',ds_tfms=get_transforms(), size=224).normalize(imagenet_stats)
+        data = ImageDataBunch.from_folder(path, train='train', valid='valid', test='testEasyOrdered',ds_tfms=get_transforms(), size=224).normalize(imagenet_stats)
     else:
-        data = ImageDataBunch.from_folder(path, train='train', valid='valid', test='test',ds_tfms=get_transforms(), size=224).normalize(imagenet_stats)
+        data = ImageDataBunch.from_folder(path, train='train', valid='valid', test='testHardOrdered',ds_tfms=get_transforms(), size=224).normalize(imagenet_stats)
     # data.show_batch(rows=3, figsize=(7,8))
 #    print(data.classes, data.c, len(data.train_ds), len(data.valid_ds), len(data.test_ds))
     return data
@@ -121,16 +171,16 @@ def do_prediction(learner, data, easy=1):
         p = learner.predict(data.test_ds.x[i])
         preds.append(str(p[0]).lower())
         
-    if (easy):   
-        with open("easyPredictionPaths.txt", "w") as file:
-            for i in range(len(data.test_ds.items)):
-                file.write(str(data.test_ds.items[i]) + '\n')    
-                #print(str(data.test_ds.items[i]) + '\n')
-    else:
-        with open("hardPredictionPaths.txt", "w") as file:
-            for i in range(len(data.test_ds.items)):
-                file.write(str(data.test_ds.items[i]) + '\n')    
-                #print(str(data.test_ds.items[i]) + '\n')
+#    if (easy):
+#        with open("easyPredictionPaths.txt", "w") as file:
+#            for i in range(len(data.test_ds.items)):
+#                file.write(str(data.test_ds.items[i]) + '\n')    
+#                #print(str(data.test_ds.items[i]) + '\n')
+#    else:
+#        with open("hardPredictionPaths.txt", "w") as file:
+#            for i in range(len(data.test_ds.items)):
+#                file.write(str(data.test_ds.items[i]) + '\n')    
+#                #print(str(data.test_ds.items[i]) + '\n')
     return preds
     
 def shuffle_in_unison(a, b):
@@ -163,20 +213,30 @@ def genPredictions(easy=1):
 
 def genPredictionsHard(easy=0):
    data = load_images(easy);
+   
    estimatedLabels = do_prediction(learner, data, easy)
    
    with open("estimatedHardLabels.txt", "w") as file:
        file.write(str(estimatedLabels))
+       
+def initImages():
+    easy = 1
+    renameImages(easy)
     
+    easy = 0
+    renameImages(easy)    
+
 if __name__ == "__main__":
     if torch.cuda.is_available():
         defaults.device = torch.device("cuda")
     else:
         defaults.device = torch.device("cpu")
         
+    initImages()
+        
     learner = load_cnn()
     
-    genLabels() # generate label files
+#    genLabels() # generate label files
     
     easy = 1
     genPredictions(easy)    # generate easy prediction files
